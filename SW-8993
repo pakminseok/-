@@ -1,0 +1,35 @@
+//sw-expert 8993
+#include<iostream>
+
+using namespace std;
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	
+	cin>>T;
+	
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        long long N;
+        cin >> N;
+
+        int cnt = 0;
+        while(N > 1)
+        {
+            N = (N%2 == 0) ? N=N/2 : N*3 + 3;
+            cnt++;
+            if(cnt > 50)
+            {
+                cnt = -1;
+                break;
+            }
+        }
+        if(cnt== -1)
+             cout <<"#"<<test_case<<" "<<"NO"<<endl;
+        else
+            cout <<"#"<<test_case<<" "<<"YES"<<endl;
+	}
+	return 0;
+}
