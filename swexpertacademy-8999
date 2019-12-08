@@ -1,0 +1,84 @@
+//제한시간 초과(7초)
+//아직 해결 중
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+struct Point {
+	int x, y;
+};
+
+bool isOnTarget(int& target_x, int& target_y, int& shoot_x, int& shoot_y)
+{
+    if(target_x-target_y >= shoot_x && shoot_x >= target_x+target_y)
+        return false;
+    if(0 >= shoot_x && shoot_x >= target_y+target_y)
+        return false;
+	long long x_square = pow((shoot_x - target_x), 2);
+	long long y_square = pow((shoot_y - target_y), 2);
+	long long r_square = pow(target_y, 2);
+
+	if (x_square + y_square < r_square)
+		return true;
+	else
+		return false;
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	cin >> T;
+
+	for (test_case = 1; test_case <= T; ++test_case)
+	{
+		vector<int> answer;
+		int N;
+		cin >> N;
+		vector<pair<int, Point>> target;
+		for (int index_of_event = 1; index_of_event <= N; ++index_of_event)
+		{
+			int event; // 1 = target , 2 = shoot
+			cin >> event;
+
+			int x, y;
+			cin >> x >> y;
+
+			if (event == 1)
+			{
+				Point point = { x,y };
+				//add target    
+				target.push_back(make_pair(index_of_event, point));
+			}
+			else if (event == 2)
+			{
+				//shoot on target
+				bool is_on_target = false;
+				int num_of_target = target.size();
+
+				for (int index_target = 0; index_target < num_of_target; ++index_target)
+				{
+					if (isOnTarget(target[index_target].second.x, target[index_target].second.y, x, y))
+					{
+						is_on_target = true;
+						answer.push_back(target[index_target].first);
+						target.erase(target.begin() + index_target);
+						break;
+					}
+				}
+				if (!is_on_target)
+					answer.push_back(-1);
+			}
+		}
+		cout << "#" << test_case;
+		for (auto ans : answer)
+			cout << " " << ans;
+		cout << endl;
+
+
+	}
+	return 0;
+}
