@@ -1,0 +1,28 @@
+#include <iostream>
+
+using namespace std;
+int main()
+{
+	int earth_year, sun_year, moon_year;
+	cin >> earth_year >> sun_year >> moon_year;
+	int our_year = 0;
+
+	while (true)
+	{
+		our_year++;
+		earth_year--;
+		sun_year--;
+		moon_year--;
+
+		if ((earth_year | sun_year | moon_year) == 0)
+			break;
+		if (earth_year == 0)
+			earth_year = 15;
+		if (sun_year == 0)
+			sun_year = 28;
+		if (moon_year == 0)
+			moon_year = 19;
+	}
+	cout << our_year;
+	return 0;
+}
