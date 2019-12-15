@@ -1,0 +1,70 @@
+//풀이중
+
+#include <iostream>
+#include <string>
+
+#define INF 987654321
+
+using namespace std;
+
+bool is_broken[10] = { false };
+
+int solve(string & channel)
+{
+	int num_of_push_button = 0;
+
+	string go_to_channel = "";
+	
+	for (int i = 0; i < channel.length(); ++i)
+	{
+		int min = INF;
+		int number = channel.at(i) - '0';
+
+		int input_number = 0;
+		for (int n = 0; n < 10; n++)
+		{
+			if (!is_broken[n])
+			{
+				if (min > abs(n - number))
+				{
+					min = abs(n - number);
+					input_number = n;
+				}
+			}
+		}
+		go_to_channel.append(to_string(input_number));
+	}
+	num_of_push_button += go_to_channel.length();
+	num_of_push_button += abs(atoi(channel.c_str()) - atoi(go_to_channel.c_str()));
+
+	return num_of_push_button;
+}
+
+int main()
+{
+	string channel;
+	cin >> channel;
+
+	int num_of_broken_button;
+	cin >> num_of_broken_button;
+
+	
+
+	for (int num = 0; num < num_of_broken_button; num++)
+	{
+		int broken_button;
+		cin >> broken_button;
+		is_broken[broken_button] = true;
+	}
+
+	if (channel == "100")
+	{
+		cout << 0 << endl;
+		return 0;
+	}
+
+	int answer = solve(channel);
+	cout << answer;
+
+	return 0;
+}
