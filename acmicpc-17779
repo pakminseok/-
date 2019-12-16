@@ -1,0 +1,98 @@
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+
+using namespace std;
+
+int n_size;
+int num_of_people[20][20];
+int election_district[20][20] = { 0 };
+
+void ChooseDistrict(int row, int col, int numbering)
+{
+	if (row < 0 || row >= n_size || col < 0 || col >= n_size)
+		return;
+	if (election_district[row][col] != 0)
+		return;
+	
+	election_district[row][col] = numbering;
+
+	ChooseDistrict(row - 1, col, numbering); //up
+	ChooseDistrict(row + 1, col, numbering); //down
+	ChooseDistrict(row, col-1, numbering); //left
+	ChooseDistrict(row, col+1, numbering); //right
+}
+
+int main()
+{
+	cin >> n_size;
+
+	for (int row = 0; row < n_size; ++row)
+		for (int col = 0; col < n_size; ++col)
+			cin >> num_of_people[row][col];
+
+	int minimum_difference_max_min = 987654321;
+
+	for (int x = 1; x <= n_size - 3; ++x)
+	{
+		for (int y = 1; y <= n_size - 2; ++y)
+		{
+			for (int d1 = 1; (x + d1 <= n_size - 2) && (y - d1 >= 0); ++d1)
+			{
+				for (int d2 = 1; (x + d2 <= n_size - 2) && (y + d2 <= n_size - 1); ++d2)
+				{
+					memset(election_district, 0, sizeof(election_district));
+					
+					//choose No.5 district(make boundary)
+					election_district[x][y] = 5;
+					for (int left = 1; left <= d1; ++left)
+					{
+						election_district[x + left][y - left] = 5;
+						election_district[x + d2 + left][y + d2 - left] = 5;
+					}
+					for (int right = 1; right <= d2; ++right)
+					{
+						election_district[x + right][y + right] = 5;
+						election_district[x + d1 + right][y - d1 + right] = 5;
+					}
+
+					//chose No.1 ~ No.4 district(make boundary)
+					for (int row = x - 1; row >= 0; --row)
+						election_district[row][y] = 1;
+					for (int col = y + d2 + 1; col <= n_size - 1; ++col)
+						election_district[x + d2][col] = 2;
+					for (int col = y - d1 - 1; col >= 0; --col)
+						election_district[x + d1][col] = 3;
+					for (int row = x + d1 + d2 + 1; row <= n_size - 1; ++row)
+						election_district[row][y - d1 + d2] = 4;
+
+					ChooseDistrict(0, 0, 1); //choose No.1
+					ChooseDistrict(0, n_size - 1, 2); // choose No.2
+					ChooseDistrict(n_size-1, 0, 3); // choose No.3
+					ChooseDistrict(n_size -1, n_size - 1, 4); // choose No.4
+
+					int sum_people_district[6] = { 0 };
+
+					for (int row = 0; row < n_size; ++row)
+					{
+						for (int col = 0; col < n_size; ++col)
+						{
+							sum_people_district[election_district[row][col]] += num_of_people[row][col];
+						}
+					}
+
+					sum_people_district[5] += sum_people_district[0];
+
+					int max_sum_of_people = *max_element(sum_people_district+1, sum_people_district + 6);
+					int min_sum_of_people = *min_element(sum_people_district+1, sum_people_district + 6);
+
+					minimum_difference_max_min = min(minimum_difference_max_min, (max_sum_of_people - min_sum_of_people));
+				}
+			}
+		}
+	}
+
+	cout << minimum_difference_max_min;
+
+	return 0;
+}
