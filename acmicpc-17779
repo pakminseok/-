@@ -82,10 +82,14 @@ int main()
 					}
 
 					sum_people_district[5] += sum_people_district[0];
-
-					int max_sum_of_people = *max_element(sum_people_district+1, sum_people_district + 6);
-					int min_sum_of_people = *min_element(sum_people_district+1, sum_people_district + 6);
-
+					
+					//int max_sum_of_people = *max_element(sum_people_district+1, sum_people_district + 6);
+					//int min_sum_of_people = *min_element(sum_people_district+1, sum_people_district + 6);
+					
+					sort(sum_people_district+1, sum_people_district + 6);
+					int max_sum_of_people = sum_people_district[5];
+					int min_sum_of_people = sum_people_district[1];
+					
 					minimum_difference_max_min = min(minimum_difference_max_min, (max_sum_of_people - min_sum_of_people));
 				}
 			}
