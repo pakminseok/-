@@ -1,0 +1,45 @@
+#include <iostream>
+#include <algorithm>
+
+#define max_array_size 100
+
+using namespace std;
+
+int maximum = 0;
+
+void Permutation(int *arr, int start, int end, int& arr_size)
+{
+	if (start == end)
+	{
+		int sum_of_difference = 0;
+		for (int index = 0; index <= arr_size - 2; ++index)
+			sum_of_difference += abs(arr[index] - arr[index + 1]);
+		maximum = max(maximum, sum_of_difference);
+	}
+	else
+	{
+		for (int i = start; i <= end; ++i)
+		{
+			swap(arr[start], arr[i]);
+			Permutation(arr, start + 1, end, arr_size);
+			swap(arr[start], arr[i]);
+		}
+	}
+}
+
+int main()
+{
+	int arr_size;
+	cin >> arr_size;
+
+	int arr[max_array_size];
+
+	for (int index = 0; index < arr_size; ++index)
+		cin >> arr[index];
+
+	Permutation(arr, 0, arr_size-1, arr_size);
+
+	cout << maximum;
+
+	return 0;
+}
