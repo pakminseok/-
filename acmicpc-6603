@@ -1,0 +1,54 @@
+#include <iostream>
+
+#define MAX_K 12
+
+using namespace std;
+
+int numbers[MAX_K];
+int k;
+
+int CountNumbers(int choose)
+{
+	int cnt = 0;
+
+	for (int index = 0; index < k; ++index)
+	{
+		if (choose & (1 << index))
+			cnt++;
+	}
+
+	return cnt;
+}
+
+void ShowCases()
+{
+	for (int choose = 1; choose < (1 << k); ++choose)
+	{
+		if (CountNumbers(choose) == 6)
+		{
+			for (int index = 0; index < k; ++index)
+			{
+				if (choose & (1 << index))
+					cout << numbers[index] << " ";
+			}
+			cout << endl;
+		}
+	}
+}
+
+int main()
+{
+	while (true)
+	{
+		cin >> k;
+		if (k == 0)
+			break;
+		for (int index = 0; index < k; ++index)
+			cin >> numbers[index];
+
+		ShowCases();
+		cout << endl;
+	}
+
+	return 0;
+}
