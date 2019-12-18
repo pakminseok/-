@@ -1,0 +1,85 @@
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+struct Corridor{
+    int start, end;
+};
+
+void SetCorridorNumber(int& room)
+{
+    if(room%2 != 0)
+        room = (room/2) + 1;
+    else
+        room = room / 2;
+}
+
+bool comp(const Corridor& c1, const Corridor& c2)
+{
+    if(c1.start < c2.start)
+        return true;
+    else
+        return false;
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	
+	cin>>T;
+
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        int N;
+        cin >> N;
+        
+        Corridor corridor[N];
+        bool gone[200] = {false};
+        
+        for(int student = 0; student < N; ++student)
+        {
+            cin >>corridor[student].start >> corridor[student].end;
+            
+            SetCorridorNumber(corridor[student].start);
+            SetCorridorNumber(corridor[student].end);
+            
+            if(corridor[student].start > corridor[student].end)
+            	swap(corridor[student].start, corridor[student].end);
+        }
+        
+        sort(corridor, corridor+N, comp);
+       
+        int answer = 0;
+
+        for(int current = 0; current < N; ++current)
+        {
+            if(gone[current])
+                continue;
+            
+            gone[current] = true;
+            answer++;
+            //cout <<answer<<": " <<corridor[current].start<<"->"<<corridor[current].end<<" ";
+            
+            int curr = current;
+            
+        	for(int next = current + 1; next < N; ++next)
+            {
+            	if(!gone[next])
+                {
+                    if(corridor[curr].end < corridor[next].start)
+                    {
+                        gone[next] = true;
+                        //cout <<corridor[next].start<<"->"<<corridor[next].end<<" ";
+                        curr = next;
+                    }
+                }
+            }
+            //cout << endl;
+        }
+      
+		cout <<"#"<<test_case<<" "<<answer<<endl;
+	}
+	return 0;
+}
