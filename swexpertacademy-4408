@@ -7,6 +7,12 @@ struct Corridor{
     int start, end;
 };
 
+void InitGone(bool* gone, int N)
+{
+    for(int student = 0; student < N; ++student)
+            gone[student] = false;
+}
+
 void SetCorridorNumber(int& room)
 {
     if(room%2 != 0)
@@ -36,8 +42,9 @@ int main(int argc, char** argv)
         cin >> N;
         
         Corridor corridor[N];
-        bool gone[200] = {false};
-        
+        bool gone[N];
+        InitGone(gone, N);
+	
         for(int student = 0; student < N; ++student)
         {
             cin >>corridor[student].start >> corridor[student].end;
