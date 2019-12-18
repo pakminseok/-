@@ -1,0 +1,46 @@
+#include<iostream>
+
+using namespace std;
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;	
+	cin>>T;
+
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        int num_of_immigration, num_of_people;
+        cin >>num_of_immigration >> num_of_people;
+        
+        long long time_immigration_tables[num_of_immigration];
+        
+        long long max_table = 0;
+        
+        for(int table = 0; table < num_of_immigration; ++table)
+        {
+            cin >> time_immigration_tables[table];
+            if(max_table < time_immigration_tables[table])
+                max_table = time_immigration_tables[table];
+        }
+        
+        long long min_time = 0;
+        long long max_time = num_of_people * max_table;
+
+        while(min_time <= max_time)
+        {
+            long long mid_time = (min_time+max_time)/2;
+            long long people = 0;
+            
+            for(int table = 0; table < num_of_immigration; ++table)
+                people += (mid_time / time_immigration_tables[table]);
+            
+            if(people < num_of_people)
+                min_time = mid_time + 1;
+            else
+                max_time = mid_time-1;
+        }
+        cout<<"#"<<test_case<<" "<<min_time<<endl;
+	}
+	return 0;
+}
