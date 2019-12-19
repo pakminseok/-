@@ -1,0 +1,37 @@
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+    int T;
+    cin >>T;
+    
+    for(int test_case = 1; test_case <= T; ++test_case)
+    {
+        int N, B;
+        cin >> N >> B;
+        
+        int height[N];
+        
+        for(int person = 0; person<N; ++person)
+            cin >> height[person];
+        
+        int min_difference = 987654321;
+        for(int choose = 1; choose < (1<<N); ++choose)
+        {
+            int sum_of_height = 0;
+            for(int person =0; person < N; ++ person)
+            {
+                if(choose & (1<<person))
+                    sum_of_height += height[person];
+            }
+            if(sum_of_height >= B)
+                min_difference = min(min_difference, (sum_of_height-B));
+        }
+        
+        cout <<"#"<<test_case<<" "<<min_difference<<endl;
+    }
+    return 0;
+}
