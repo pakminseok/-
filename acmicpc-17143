@@ -1,0 +1,104 @@
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+struct Shark{
+    int speed, direction, size;
+};
+
+int R,C,M;
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, 1, -1};
+Shark sharks[100][100];
+int sum_of_catch_shark_size = 0;
+
+void CatchFish(int pos_fisher)
+{
+	for(int row = 0; row < R; ++row)
+    {
+        if(sharks[row][pos_fisher].size != 0)
+        {
+            sum_of_catch_shark_size += sharks[row][pos_fisher].size;
+            sharks[row][pos_fisher].size = 0;
+            return;
+        }
+    }    
+}
+
+void Fish_move_and_eat()
+{
+    Shark temp_sharks[100][100]={0};
+    
+    for(int row = 0; row <R; ++row)
+    {
+        for(int col =0; col <C; ++col)
+        {
+            Shark& current_shark = sharks[row][col];
+            if(current_shark.size == 0) continue;
+            int new_row = row + (Dr[current_shark.direction]*current_shark.speed);
+            int new_col = col + (Dc[current_shark.direction]*current_shark.speed);
+            
+            if(new_row < 0)
+            {
+                new_row = -new_row;
+                current_shark.direction = 1;
+            }
+            if(new_row > R-1)
+            {
+                int direction_check = new_row/(R-1);
+                if(direction_check % 2 != 0)
+                {
+                    current_shark.direction = 0;
+                    new_row = (R-1) - (new_row % (R-1));
+                }
+                else
+                    new_row = new_row % (R-1);
+            }
+            if(new_col < 0)
+            {
+                new_col = -new_col;
+                current_shark.direction = 2;
+            }
+            if(new_col > C-1)
+            {
+                int direction_check = new_col/(C-1);
+                if(direction_check % 2 != 0)
+                {
+                    current_shark.direction = 3;
+                    new_col = (C-1) - (new_col % (C-1));
+                }
+                else
+                    new_col = new_col % (C-1);
+            }
+            
+            //eat
+            if(temp_sharks[new_row][new_col].size < current_shark.size)
+                temp_sharks[new_row][new_col] = current_shark;
+        }
+    }
+    memcpy(sharks, temp_sharks, sizeof(temp_sharks));
+}
+
+int main()
+{
+    cin >> R >> C >> M;
+    
+    memset(sharks, 0, sizeof(sharks));
+    
+    for(int shark = 0; shark < M; ++shark)
+    {
+        int row, col, speed, direction, size_of_shark;
+        cin >> row >> col >> speed >> direction >> size_of_shark;
+        sharks[row-1][col-1] = {speed, direction-1, size_of_shark};
+    }
+    
+    for(int pos_fisher = 0; pos_fisher < C; ++pos_fisher)
+    {
+        CatchFish(pos_fisher);
+        Fish_move_and_eat();
+    }
+      
+    cout << sum_of_catch_shark_size <<endl;
+    return 0;
+}
