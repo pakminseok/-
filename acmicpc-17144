@@ -1,0 +1,100 @@
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+int dust_of_room[50][50];
+int dust_moved[50][50];
+int row_of_cleaner[2];
+int R, C, T;
+
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+
+void MoveDust()
+{
+     for(int row = 0; row < R; ++row)
+     {
+         for(int col = 0; col < C; ++col)
+         {
+             if(dust_of_room[row][col] == -1) continue;
+             int cnt_of_near_room = 0;
+             int dust_to_move = dust_of_room[row][col] / 5;
+             if(dust_to_move == 0) continue;
+             for(int direction = 0; direction < 4; ++direction)
+             {
+                 int new_row = row + Dr[direction];
+                 int new_col = col + Dc[direction];
+                 if(new_row < 0 || new_row >R-1 || new_col < 0 || new_col >C-1 || dust_of_room[new_row][new_col] == -1) continue;
+                 dust_moved[new_row][new_col] += dust_to_move;
+                 cnt_of_near_room++;
+             }
+             dust_of_room[row][col] -= (cnt_of_near_room*dust_to_move);
+         }
+     }
+    
+    for(int row = 0; row < R; ++row)
+         for(int col = 0; col < C; ++col)
+             dust_of_room[row][col] +=  dust_moved[row][col];
+}
+
+void CleaningDust()
+{
+    for(int row = row_of_cleaner[0]-1; row > 0; --row)
+        dust_of_room[row][0] = dust_of_room[row-1][0];
+   	for(int col = 0; col < C-1; ++col)
+        dust_of_room[0][col] = dust_of_room[0][col+1];
+    for(int row = 0; row < row_of_cleaner[0]; ++row)
+        dust_of_room[row][C-1] = dust_of_room[row+1][C-1];
+    for(int col = C-1; col > 1; --col)
+        dust_of_room[row_of_cleaner[0]][col] = dust_of_room[row_of_cleaner[0]][col-1];
+    dust_of_room[row_of_cleaner[0]][1] = 0;
+    
+    for(int row = row_of_cleaner[1]+1; row < R-1 ; ++row)
+        dust_of_room[row][0] = dust_of_room[row+1][0];
+    for(int col = 0; col < C-1; ++col)
+        dust_of_room[R-1][col] = dust_of_room[R-1][col+1];   
+    for(int row = R-1; row > row_of_cleaner[1]; --row)
+        dust_of_room[row][C-1] = dust_of_room[row-1][C-1];
+    for(int col = C-1; col > 1; --col)
+        dust_of_room[row_of_cleaner[1]][col] = dust_of_room[row_of_cleaner[1]][col-1];
+    dust_of_room[row_of_cleaner[1]][1] = 0;
+}
+
+int main()
+{
+    cin >> R >> C >> T;
+    
+    int index_of_cleaner = 0;
+    
+    for(int row = 0; row < R; ++row)
+    {
+        for(int col = 0; col < C; ++col)
+        {
+            cin >> dust_of_room[row][col];
+            if(dust_of_room[row][col] == -1)
+                row_of_cleaner[index_of_cleaner++] = row;
+        }
+    }
+    
+    for(int seconds =0; seconds < T; ++seconds)
+    {
+        memset(dust_moved, 0, sizeof(dust_moved));
+        MoveDust();
+        CleaningDust();
+    }
+    
+    int sum_of_dust = 0;
+    
+    for(int row = 0; row < R; ++row)
+    {
+        for(int col = 0; col < C; ++col)
+        {
+            if(dust_of_room[row][col] == -1) continue;
+            sum_of_dust += dust_of_room[row][col];
+        }
+    }
+    
+    cout << sum_of_dust << endl;
+    return 0;
+}
