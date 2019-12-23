@@ -1,0 +1,63 @@
+#include <iostream>
+
+using namespace std;
+
+int room[16][16];
+int answer = 0;
+int N;
+
+struct Point {
+	int row;
+	int col;
+};
+
+enum Direction {
+	GARO = 0, SERO = 1, DAEGAG = 2
+};
+
+void Move(Point left_pipe, Point right_pipe, int direction)
+{
+	if (right_pipe.row < 0 || right_pipe.row > N - 1 || right_pipe.col <0 || right_pipe.col > N - 1) return;
+	if (room[right_pipe.row][right_pipe.col] != 0) return;
+	if (direction == DAEGAG && (room[left_pipe.row + 1][left_pipe.col] != 0 || room[left_pipe.row][left_pipe.col + 1] != 0)) return;
+
+	if (right_pipe.row == N - 1 && right_pipe.col == N - 1)
+	{
+		answer++;
+		return;
+	}
+
+	if (direction == GARO)
+	{
+		Move(right_pipe, { right_pipe.row, right_pipe.col + 1 }, GARO);
+		Move(right_pipe, { right_pipe.row+1, right_pipe.col + 1 }, DAEGAG);
+	}
+	else if (direction == SERO)
+	{
+		Move(right_pipe, { right_pipe.row+1, right_pipe.col }, SERO);
+		Move(right_pipe, { right_pipe.row + 1, right_pipe.col + 1 }, DAEGAG);
+	}
+	else if(direction == DAEGAG)
+	{
+		Move(right_pipe, { right_pipe.row, right_pipe.col + 1 }, GARO);
+		Move(right_pipe, { right_pipe.row + 1, right_pipe.col }, SERO);
+		Move(right_pipe, { right_pipe.row + 1, right_pipe.col + 1 }, DAEGAG);
+	}
+}
+
+int main()
+{
+	cin >> N;
+	for (int row = 0; row < N; ++row)
+		for (int col = 0; col < N; ++col)
+			cin >> room[row][col];
+	
+	Point left_pipe = { 0,0 };
+	Point right_pipe = { 0,1 };
+
+	Move(left_pipe, right_pipe, GARO);
+
+	cout << answer << endl;
+
+	return 0;
+}
