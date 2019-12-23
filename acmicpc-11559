@@ -1,0 +1,97 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+
+using namespace std;
+
+struct Point {
+	int row;
+	int col;
+};
+
+const int R = 12;
+const int C = 6;
+
+char puyo[R][C];
+bool visit[R][C];
+vector<Point> same_list;
+
+void FindConnection(int row, int col, char color)
+{
+	if (row < 0 || row > R-1 || col < 0 || col > C-1) return;
+	if (visit[row][col]) return;
+	if (puyo[row][col] == '.' || puyo[row][col] != color) return;
+
+	same_list.push_back({ row, col });
+	visit[row][col] = true;
+
+	FindConnection(row - 1, col, color);
+	FindConnection(row + 1, col, color);
+	FindConnection(row, col -1, color);
+	FindConnection(row, col +1, color);
+}
+
+bool CanBomb()
+{
+	bool is_chain = false;
+	memset(visit, false, sizeof(visit));
+	for (int row = 0; row < R; ++row)
+	{
+		for (int col = 0; col < C; ++col)
+		{
+			if (puyo[row][col] == '.' || visit[row][col] == true) continue;
+			FindConnection(row, col, puyo[row][col]);
+			if (same_list.size() >= 4)
+			{
+				while (!same_list.empty())
+				{
+					puyo[same_list.back().row][same_list.back().col] = '.';
+					same_list.pop_back();
+					is_chain = true;
+				}
+			}
+			same_list.clear();
+		}
+	}
+	return is_chain;
+}
+
+void MoveDown()
+{
+	for (int col = 0; col < C; ++col)
+	{
+		for (int row = R-1; row >= 0; --row)
+		{
+			for (int row_index = row - 1; row_index >= 0; --row_index)
+			{
+				if (puyo[row][col] == '.' && puyo[row_index][col] != '.')
+				{
+					puyo[row][col] = puyo[row_index][col];
+					puyo[row_index][col] = '.';
+				}
+			}
+		}
+	}
+}
+
+int main()
+{
+	for (int row = 0; row < R; ++row)
+		for (int col = 0; col < C; ++col)
+			cin >> puyo[row][col];
+
+	int chain = 0;
+
+	for (int row = 0; row < R; ++row)
+	{
+		for (int col = 0; col < C; ++col)
+		{
+			if(CanBomb()) chain++;
+			MoveDown();
+		}
+	}
+	
+	cout << chain << endl;
+
+	return 0;
+}
