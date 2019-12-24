@@ -1,0 +1,69 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int pizza_size_to_buy;
+
+void MakeSumList(int *pizza, vector<int>& sum_list, int num_of_pizza)
+{
+	sum_list.push_back(0);
+	for(int start_index = 0; start_index < num_of_pizza; start_index++)
+	{
+		int sum = pizza[start_index];
+		if (sum > pizza_size_to_buy)
+			continue;
+		sum_list.push_back(sum);
+		int end_index = (start_index + 1)% num_of_pizza;
+		while (start_index != end_index)
+		{
+			sum += pizza[end_index];
+			if (sum > pizza_size_to_buy)
+				break;
+			sum_list.push_back(sum);
+			end_index = (end_index + 1) % num_of_pizza;
+			if (start_index != 0 && (start_index - end_index) == 1)
+				break;
+		}
+	}
+}
+
+int main()
+{
+	cin >> pizza_size_to_buy;
+
+	int m, n;
+	cin >> m >> n;
+
+	int pizza_A[1000];
+	int pizza_B[1000];
+
+	vector<int> sum_list_pizza_A;
+	vector<int> sum_list_pizza_B;
+	
+
+	for (int A = 0; A < m; ++A)
+		cin >> pizza_A[A];
+	for (int B = 0; B < n; ++B)
+		cin >> pizza_B[B];
+
+	MakeSumList(pizza_A, sum_list_pizza_A, m);
+	MakeSumList(pizza_B, sum_list_pizza_B, n);
+
+	sort(sum_list_pizza_A.begin(), sum_list_pizza_A.end());
+	sort(sum_list_pizza_B.begin(), sum_list_pizza_B.end());
+
+	int answer = 0;
+
+	for (int B_index = 0; B_index < sum_list_pizza_B.size(); ++B_index)
+	{
+		int start_index = lower_bound(sum_list_pizza_A.begin(), sum_list_pizza_A.end(), (pizza_size_to_buy - sum_list_pizza_B[B_index])) - sum_list_pizza_A.begin();
+		int end_index = upper_bound(sum_list_pizza_A.begin(), sum_list_pizza_A.end(), (pizza_size_to_buy - sum_list_pizza_B[B_index])) - sum_list_pizza_A.begin();
+		
+		answer += end_index - start_index;
+	}
+
+	cout << answer << endl;
+	return 0;
+}
