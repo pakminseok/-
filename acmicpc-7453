@@ -1,0 +1,47 @@
+#include <iostream>
+#include <algorithm>
+
+#define MAX_SIZE 4000
+using namespace std;
+
+int main()
+{
+	int n;
+	cin >> n;
+
+	long long A[MAX_SIZE], B[MAX_SIZE], C[MAX_SIZE], D[MAX_SIZE];
+
+	for (int index = 0; index < n; ++index)
+		cin >> A[index] >> B[index] >> C[index] >> D[index];
+	
+	long long AB[MAX_SIZE*MAX_SIZE], CD[MAX_SIZE*MAX_SIZE];
+
+	long long size_AB_and_CD = 0;
+
+	for (int index_a_and_c = 0; index_a_and_c < n; ++index_a_and_c)
+	{
+		for (int index_b_and_d = 0; index_b_and_d < n; ++index_b_and_d)
+		{
+			AB[size_AB_and_CD] = A[index_a_and_c] + B[index_b_and_d];
+			CD[size_AB_and_CD] = C[index_a_and_c] + D[index_b_and_d];
+			++size_AB_and_CD;
+		}
+	}
+
+	sort(AB, AB + size_AB_and_CD);
+	sort(CD, CD + size_AB_and_CD);
+
+	long long answer = 0;
+
+	for (int idx = 0; idx < size_AB_and_CD; ++idx)
+	{
+		int end_index = upper_bound(AB, AB + size_AB_and_CD, 0-CD[idx]) - AB;
+		int start_index = lower_bound(AB, AB + size_AB_and_CD, 0-CD[idx]) - AB;
+
+		answer += end_index - start_index;
+	}
+	
+	cout << answer << endl;
+	
+	return 0;
+}
