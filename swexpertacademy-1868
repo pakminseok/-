@@ -1,0 +1,83 @@
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+int N;
+char mine[300][300];
+bool visit[300][300];
+
+int Dr[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+int Dc[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+char number[9] = {'0', '1', '2', '3', '4', '5', '6', '7', '8'};
+
+char CountMine(int row, int col)
+{
+    int num_of_mine =0;
+    
+    for(int direction = 0; direction < 8; ++direction)
+    {
+        int new_row = row + Dr[direction];
+        int new_col = col + Dc[direction];
+        if(new_row < 0 || new_row >N-1 || new_col < 0 || new_col > N-1) continue;
+        if(mine[new_row][new_col] == '*')
+            num_of_mine++;
+    }
+    
+    return number[num_of_mine];
+}
+
+void FillNumber(int row, int col)
+{
+    if(row < 0 || row >N-1 || col < 0 || col > N-1) return;
+    if(mine[row][col] == '*') return;
+    if(visit[row][col]) return;
+    
+    mine[row][col] = CountMine(row, col);
+    visit[row][col] = true;
+    
+    if(mine[row][col] == '0')
+    {
+        for(int direction = 0; direction < 8; ++direction)
+			    FillNumber(row + Dr[direction], col + Dc[direction]);
+    }
+}
+
+int main()
+{
+    int T;
+    cin>>T;
+    
+    for(int test_case = 1; test_case <= T; ++test_case)
+    {
+        memset(visit, false, sizeof(visit));
+        cin>>N;
+        
+        for(int row = 0; row <N; ++row)
+            for(int col =0; col < N; ++col)
+                cin >> mine[row][col];
+        
+        int answer = 0;
+        
+        for(int row = 0; row <N; ++row)
+        {
+            for(int col =0; col < N; ++col)
+            {
+                if(mine[row][col] == '.' && CountMine(row,col) == number[0])
+                { 
+                    FillNumber(row,col);
+                    answer++;
+                }
+            }
+    	  }
+        
+        for(int row = 0; row <N; ++row)
+            for(int col =0; col < N; ++col)
+                if(mine[row][col] == '.')
+                    answer++;
+        
+		    cout<<"#"<<test_case<<" "<<answer<<"\n";
+    }
+    
+    return 0;
+}
