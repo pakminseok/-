@@ -1,0 +1,59 @@
+#include <iostream>
+#include <cstring>
+#define MAX_SIZE 16
+
+using namespace std;
+
+struct Point{
+    int row;
+    int col;
+};
+
+char maze[MAX_SIZE][MAX_SIZE];
+bool visit[MAX_SIZE][MAX_SIZE] = {false};
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+int answer;
+
+void Move(int row, int col)
+{
+    if(row < 0 || row > MAX_SIZE-1 || col < 0 || col >MAX_SIZE-1) return;
+    if(maze[row][col] == '1' || visit[row][col]) return;
+	  visit[row][col] = true;
+    if(maze[row][col] == '3')
+    {
+        answer = 1;
+        return;
+    }
+    for(int direction = 0; direction < 4; ++direction)
+        Move(row+Dr[direction], col + Dc[direction]);
+}
+
+int main()
+{
+    for(int tc = 1; tc <=10; ++tc) 
+    {
+        answer = 0;
+        memset(visit, false, sizeof(visit));
+        
+        int test_case;
+        cin >> test_case;
+
+        Point start; 
+        
+        for(int row = 0; row < MAX_SIZE; ++row)
+        {
+            for(int col = 0; col < MAX_SIZE; ++col)
+            {
+                cin >> maze[row][col];
+                if(maze[row][col] == '2')
+                    start = {row, col};
+            }
+        }
+
+        Move(start.row, start.col);
+        cout <<"#"<<test_case<<" "<<answer<<endl;
+    }
+
+    return 0;
+}
