@@ -1,0 +1,263 @@
+#include <iostream>
+#include <vector>
+#define MAX_SIZE 100
+using namespace std;
+
+enum Direction{
+    UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3
+};
+
+int game_board[MAX_SIZE][MAX_SIZE];
+int N;
+int score;
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+int start_row, start_col;
+
+int block_type[5][4] ={
+    {DOWN, RIGHT, UP, LEFT},
+    {RIGHT, UP, DOWN, LEFT},
+    {LEFT, UP, RIGHT, DOWN},
+    {DOWN, LEFT, RIGHT, UP},
+    {DOWN, UP, RIGHT, LEFT}
+};
+
+vector<pair<int, int>> worm_hole[5];
+
+void Move(int row, int col, int direction)
+{
+    while(true)
+    {
+        if(row < 0)
+        {
+            row = 0;
+            direction = DOWN;
+            score++;
+        }
+        else if(row > N-1)
+        {
+            row = N-1;
+            direction = UP;
+            score++;
+        }
+        else if(col < 0)
+        {
+            col = 0;
+            direction = RIGHT;
+            score++;
+        }
+        else if(col > N - 1)
+        {
+            col = N-1;
+            direction = LEFT;
+            score++;
+        }
+        
+        if(row == start_row && col == start_col) break;
+        if(game_board[row][col] == -1) break;
+               
+        if(game_board[row][col] >= 1 && game_board[row][col] <= 5)
+        {
+            direction = block_type[game_board[row][col] -1][direction];
+            score++;
+        }
+
+        if(game_board[row][col] >=6 && game_board[row][col] <=10)
+        {
+            pair<int, int> hole_one = worm_hole[game_board[row][col]%6][0];
+            pair<int, int> hole_other = worm_hole[game_board[row][col]%6][1];
+
+            if(row == hole_one.first && col == hole_one.second)
+            {
+                row = hole_other.first;
+                col = hole_other.second;
+            }
+            else
+            {
+                row = hole_one.first;
+                col = hole_one.second;
+            }
+        }
+        row = row + Dr[direction];
+        col = col + Dc[direction];
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	cin>>T;
+
+  for(test_case = 1; test_case <= T; ++test_case)
+	{
+        cin >> N;
+        for(int i = 0; i <5; ++i)
+        	worm_hole[i].clear();
+        for(int row = 0; row < N; ++row)
+        {
+            for(int col =0; col < N; ++col)
+            {
+                cin >> game_board[row][col];
+                if(game_board[row][col] >= 6 && game_board[row][col] <=10)
+                    worm_hole[game_board[row][col] % 6].push_back(make_pair(row, col));
+            }
+        }
+		
+        int max_score = 0;
+        for(int row = 0; row < N; ++row)
+        {
+            for(int col =0; col < N; ++col)
+            {
+                if(game_board[row][col] == 0)
+                {
+                    for(int direction = 0; direction <4; ++direction)
+                    {
+                        score = 0;
+                        start_row = row;
+                        start_col = col;
+                   	 	  Move(row+Dr[direction], col+Dc[direction], direction);
+                    	  max_score = max(max_score, score);
+                    }
+                }
+            }
+        }
+        
+        cout << "#" <<test_case <<" "<<max_score<<endl;
+	}
+	return 0;
+}
+
+
+
+/* 스택메모리 초과로 인한 런타임에러(마지막 케이스만) */
+/*
+#include <iostream>
+#include <vector>
+#define MAX_SIZE 100
+using namespace std;
+
+enum Direction{
+    UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3
+};
+
+int game_board[MAX_SIZE+1][MAX_SIZE+1];
+int N;
+int score;
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+int start_row, start_col;
+
+int block_type[5][4] ={
+    {DOWN, RIGHT, UP, LEFT},
+    {RIGHT, UP, DOWN, LEFT},
+    {LEFT, UP, RIGHT, DOWN},
+    {DOWN, LEFT, RIGHT, UP},
+    {DOWN, UP, RIGHT, LEFT}
+};
+
+vector<pair<int, int>> worm_hole[5];
+
+void Move(int row, int col, int direction)
+{
+   	if(row < 0 || row > N-1 || col < 0 || col > N-1)
+    {
+            if(row < 0)
+            {
+                row = 0;
+                direction = DOWN;
+            }
+            else if(row > N-1)
+            {
+                row = N-1;
+                direction = UP;
+            }
+            else if(col < 0)
+            {
+                col = 0;
+                direction = RIGHT;
+            }
+            else if(col > N - 1)
+            {
+                col = N-1;
+                direction = LEFT;
+            }
+            score++;
+    }
+
+    if(row == start_row && col == start_col) return;
+    if(game_board[row][col] == -1) return;
+    
+    
+    if(game_board[row][col] >= 1 && game_board[row][col] <= 5)
+    {
+        direction = block_type[game_board[row][col] -1][direction];
+        score++;
+    }
+    
+    if(game_board[row][col] >=6 && game_board[row][col] <=10)
+    {
+        pair<int, int> hole_one = worm_hole[game_board[row][col]%6][0];
+        pair<int, int> hole_ohter = worm_hole[game_board[row][col]%6][1];
+        
+        if(row == hole_one.first && col == hole_one.second)
+        {
+            row = hole_ohter.first;
+            col = hole_ohter.second;
+        }
+        else
+        {
+            row = hole_one.first;
+            col = hole_one.second;
+        }
+    }
+    
+    Move(row + Dr[direction], col + Dc[direction], direction);
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	cin>>T;
+
+    for(test_case = 1; test_case <= T; ++test_case)
+	{
+        cin >> N;
+        for(int i = 0; i <5; ++i)
+        	worm_hall[i].clear();
+        for(int row = 0; row < N; ++row)
+        {
+            for(int col =0; col < N; ++col)
+            {
+                cin >> game_board[row][col];
+                if(game_board[row][col] >= 6 && game_board[row][col] <=10)
+                    worm_hole[game_board[row][col] % 6].push_back(make_pair(row, col));
+            }
+        }
+		
+        int max_score = 0;
+        for(int row = 0; row < N; ++row)
+        {
+            for(int col =0; col < N; ++col)
+            {
+                if(game_board[row][col] == 0)
+                {
+                    for(int direction = 0; direction <4; ++direction)
+                    {
+                        score = 0;
+                        start_row = row;
+                        start_col = col;
+                   	 	Move(row+Dr[direction], col+Dc[direction], direction);
+                    	max_score = max(max_score, score);
+                    }
+                }
+            }
+        }
+        
+        cout << "#" <<test_case <<" "<<max_score<<endl;
+	}
+	return 0;
+}
+
+*/
