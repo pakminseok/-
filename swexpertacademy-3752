@@ -11,33 +11,33 @@ int main(int argc, char** argv)
 
 	for(test_case = 1; test_case <= T; ++test_case)
 	{
-        int numbers[100] = {0};
-		    bool is_sum_of_numbers[10001] = {false};
+        	int numbers[100] = {0};
+		bool is_sum_of_numbers[10001] = {false};
         
-        int N;
-        cin >> N;
-        
-        for(int index=0; index<N; ++index)
-            cin >> numbers[index];
-        
-        int sum = 0;
-        is_sum_of_numbers[0] = true;
-        
-      	for(int index = 0; index < N; ++index)
-        {
-            sum += numbers[index];
-            for(int j = sum; j >=0; --j)
-                if(is_sum_of_numbers[j])
-                    is_sum_of_numbers[j+numbers[index]] = true;
-        }
-        
-        int number_of_choose = 0;
-        
-        for (auto is_sum : is_sum_of_numbers) 
-        	if(is_sum)
-                number_of_choose++;
-        
-        cout <<"#"<<test_case<<" "<<number_of_choose<<endl;
+		int N;
+		cin >> N;
+
+		for(int index=0; index<N; ++index)
+		    cin >> numbers[index];
+
+		int sum = 0;
+		is_sum_of_numbers[0] = true;
+
+		for(int index = 0; index < N; ++index)
+		{
+		    sum += numbers[index];
+		    for(int j = sum; j >=0; --j)
+			if(is_sum_of_numbers[j])
+			    is_sum_of_numbers[j+numbers[index]] = true;
+		}
+
+		int number_of_choose = 0;
+
+		for (auto is_sum : is_sum_of_numbers) 
+		     if(is_sum)
+			number_of_choose++;
+
+		cout <<"#"<<test_case<<" "<<number_of_choose<<endl;
 	}
 	return 0;
 }
