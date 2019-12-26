@@ -1,0 +1,39 @@
+#include <iostream>
+
+using namespace std;
+
+int main(int argc, char** argv)
+{
+    int T;
+    cin>>T;
+
+    for(int test_case = 1; test_case <= T; ++test_case)
+    {
+          int N, M;
+          cin >> N >> M;
+
+          int a[N];
+
+          for(int n=0; n < N; ++n)
+              cin >> a[n];
+
+          int max_sum = 0;
+
+          for(int i=0; i < N; ++i)
+          {
+              for(int j=i+1; j < N; ++j)
+              {
+                  int sum = a[i] + a[j];
+                  if(sum <= M)
+                      max_sum = max(max_sum, sum);
+              }
+          }
+        
+          if(max_sum == 0)
+                max_sum = -1;
+
+          cout<< "#" << test_case<<" "<<max_sum<<endl;
+    }
+    
+	  return 0;
+}
