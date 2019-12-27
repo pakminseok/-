@@ -1,0 +1,127 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Tree{
+    int age;
+    bool alive;
+};
+
+vector<Tree> trees[10][10];
+int A[10][10];
+int land[10][10];
+int Dr[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+int Dc[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+bool comp(Tree A, Tree B)
+{
+    return A.age <= B.age;
+}
+
+int main()
+{
+    int num_of_alive = 0;
+    
+    int N, M, K;
+    cin >> N >> M >> K;
+    
+    for(int row =0; row < N; ++row)
+    {
+        for(int col = 0; col < N; ++col)
+        {
+            cin >> A[row][col];
+            land[row][col] = 5;
+        }
+    }
+   
+    for(int index =0; index < M; ++index)
+    {
+        int row, col, age;
+        cin >> row >> col >> age;
+        trees[row-1][col-1].push_back({age, true});
+    }
+   
+    for(int year = 0; year < K; ++year)
+    {
+         for(int row =0; row < N; ++row)
+            for(int col = 0; col < N; ++col)
+                if(!trees[row][col].empty())
+                 	sort(trees[row][col].begin(), trees[row][col].end(), comp);
+        //봄
+         for(int row =0; row < N; ++row)
+         {
+             for(int col = 0; col < N; ++col)
+             {
+                 if(trees[row][col].empty()) continue;
+                 for(vector<Tree>::iterator tree = trees[row][col].begin(); tree != trees[row][col].end(); ++tree)
+                 {
+                     if(!tree->alive) continue;
+                     if(tree->age <= land[row][col])
+                     {
+                         land[row][col] -= tree->age;
+                         tree->age += 1;
+                     }
+                     else
+                         tree->alive = false;
+                 }
+             }
+         }
+         //여름
+         for(int row =0; row < N; ++row)
+         {
+             for(int col = 0; col < N; ++col)
+             {
+                 if(trees[row][col].empty()) continue;
+                 for(vector<Tree>::iterator tree = trees[row][col].begin(); tree != trees[row][col].end(); ++tree)
+                 {
+                     if(!tree->alive) 
+                     {
+                         land[row][col] += (tree->age/2);
+                         tree-> age = 0;
+                     }
+                 }
+             }
+         }
+         //가을
+         for(int row =0; row < N; ++row)
+         {
+             for(int col = 0; col < N; ++col)
+             {
+                 if(trees[row][col].empty()) continue;
+                 for(vector<Tree>::iterator tree = trees[row][col].begin(); tree != trees[row][col].end(); ++tree)
+                 {
+                     if(!tree->alive) continue;
+                     if(tree->age%5 == 0)
+                     {
+                         for(int direction = 0; direction < 8; ++direction)
+                         {
+                             int next_row = row + Dr[direction];
+                             int next_col = col + Dc[direction];
+                             if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > N-1) continue;
+                             trees[next_row][next_col].push_back({1, true});
+                         }
+                     }
+                 }
+             }
+         }
+         //겨울
+         for(int row =0; row < N; ++row)
+             for(int col = 0; col < N; ++col)
+                 land[row][col] += A[row][col];
+    }
+    
+    for(int row =0; row < N; ++row)
+    {
+       for(int col = 0; col < N; ++col)
+       {
+           if(trees[row][col].empty()) continue;
+           for(vector<Tree>::iterator tree = trees[row][col].begin(); tree != trees[row][col].end(); ++tree)
+               if(tree->alive)
+              num_of_alive++;
+       }
+    }
+    cout << num_of_alive << endl;
+  	return 0;
+}
