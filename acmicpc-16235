@@ -125,3 +125,120 @@ int main()
     cout << num_of_alive << endl;
   	return 0;
 }
+
+
+/* 시간 초과 해결 */
+/*
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+vector<int> tree_age[10][10];
+int A[10][10];
+int land[10][10];
+int Dr[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+int Dc[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+int main()
+{
+    int num_of_alive = 0;
+    
+    int N, M, K;
+    cin >> N >> M >> K;
+    
+    for(int row =0; row < N; ++row)
+    {
+        for(int col = 0; col < N; ++col)
+        {
+            cin >> A[row][col];
+            land[row][col] = 5;
+        }
+    }
+   
+    for(int index =0; index < M; ++index)
+    {
+        int row, col, age;
+        cin >> row >> col >> age;
+        tree_age[row-1][col-1].push_back(age);
+    }
+   
+    for(int year = 0; year < K; ++year)
+    {
+         for(int row =0; row < N; ++row)
+            for(int col = 0; col < N; ++col)
+                if(!tree_age[row][col].empty())
+                 	sort(tree_age[row][col].begin(), tree_age[row][col].end());
+        //봄
+         for(int row =0; row < N; ++row)
+         {
+             for(int col = 0; col < N; ++col)
+             {
+                 if(tree_age[row][col].empty()) continue;
+                 vector<int> alive;
+                 int dead_energy = 0;
+                 for(int index = 0; index < tree_age[row][col].size(); ++index)
+                 {
+                     int& age = tree_age[row][col][index];
+                     if(age <= land[row][col])
+                     {
+                         land[row][col] -= age;
+                         age++;
+                         alive.push_back(age);
+                     }
+                     else
+                     {
+                         //여름
+                         age = age/2;
+                         dead_energy += age;
+                     }
+                 }
+                 tree_age[row][col].clear();
+                 tree_age[row][col] = alive;
+                 //여름
+                 land[row][col] += dead_energy;
+             }
+         }
+        //가을
+         for(int row =0; row < N; ++row)
+         {
+             for(int col = 0; col < N; ++col)
+             {
+                 if(tree_age[row][col].empty()) continue;
+                 for(int index = 0; index < tree_age[row][col].size(); ++index)
+                 {
+        				if(tree_age[row][col][index]%5 == 0)
+                     	{
+                             for(int direction = 0; direction < 8; ++direction)
+                             {
+                                 int next_row = row + Dr[direction];
+                                 int next_col = col + Dc[direction];
+                                 if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > N-1) continue;
+                                 tree_age[next_row][next_col].push_back(1);
+                             }
+                        }
+                 }
+             }
+         }
+                            
+        //겨울
+        for(int row =0; row < N; ++row)
+            for(int col = 0; col < N; ++col)
+                land[row][col] += A[row][col];
+    }
+    
+     for(int row =0; row < N; ++row)
+     {
+         for(int col = 0; col < N; ++col)
+         {
+             if(tree_age[row][col].empty()) continue;
+             for(int index = 0; index < tree_age[row][col].size(); ++index)
+                 if(tree_age[row][col][index])
+                     num_of_alive++;
+         }
+	}
+    cout << num_of_alive << endl;
+  	return 0;
+}
+*/
