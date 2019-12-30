@@ -1,0 +1,58 @@
+#include <iostream>
+#include <queue>
+#include <cstring>
+
+#define MAX_SIZE 1000000
+
+using namespace std;
+
+int F, S, G, U, D;
+
+int NumOfButton(int start_floor)
+{
+    bool visit[F+1];
+    memset(visit, false, sizeof(visit));
+    
+    queue<pair<int, int>> floors;
+    floors.push(make_pair(start_floor, 0));
+    visit[start_floor] = true;
+    
+    while(!floors.empty())
+    {
+        int curr_floor = floors.front().first;
+        int num_of_button = floors.front().second;
+        floors.pop();
+        
+        if(curr_floor == G) return num_of_button;
+        
+        int move[2] = {U, -D};
+    	
+        for(int button = 0; button < 2; ++button)
+        {
+            int next_floor = curr_floor + move[button];
+            if(next_floor >= 1 && next_floor <= F)
+            {
+                if(!visit[next_floor])
+                {
+                    floors.push(make_pair(next_floor, num_of_button+1));
+                    visit[next_floor] = true;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+int main()
+{
+   	cin >>  F >> S >> G >> U >> D;
+
+    int answer = NumOfButton(S);
+    
+    if(answer == -1)
+        cout << "use the stairs" << endl;
+    else
+        cout << answer << endl;
+        
+  	return 0;
+}
