@@ -42,7 +42,7 @@ int main()
     
     memset(visit, false, sizeof(visit));
     
-   	for(int city = 0; city < N; ++city)
+    for(int city = 0; city < N; ++city)
     {
         start_city = city;
         visit[city] = true;
