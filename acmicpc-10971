@@ -1,0 +1,55 @@
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+
+#define MAX_SIZE 10
+#define INF 987654321
+
+using namespace std;
+
+int N;
+int W[MAX_SIZE][MAX_SIZE];
+bool visit[MAX_SIZE];
+int start_city;
+int answer = INF;
+
+void Move(int curr_city, int cost, int num_of_visit)
+{
+    if(num_of_visit == N && W[curr_city][start_city] != 0)
+    {
+        answer = min(answer, cost + W[curr_city][start_city]);
+        return;
+    }
+    
+    for(int city = 0; city < N; ++city)
+    {
+        if(W[curr_city][city] != 0 && !visit[city])
+        {
+            visit[city] = true;
+            Move(city, cost+W[curr_city][city], num_of_visit+1);
+            visit[city] = false;
+        }
+    }
+}
+
+int main()
+{
+    cin >> N;
+    
+    for(int row = 0; row < N; ++row)
+        for(int col = 0; col < N; ++col)
+            cin >> W[row][col];
+    
+    memset(visit, false, sizeof(visit));
+    
+   	for(int city = 0; city < N; ++city)
+    {
+        start_city = city;
+        visit[city] = true;
+        Move(city, 0, 1);
+        visit[city] = false;
+    }
+    cout << answer << endl;
+  	
+    return 0;
+}
