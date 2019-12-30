@@ -49,6 +49,7 @@ int main()
         Move(city, 0, 1);
         visit[city] = false;
     }
+    
     cout << answer << endl;
   	
     return 0;
