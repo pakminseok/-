@@ -1,0 +1,39 @@
+#include <iostream>
+
+using namespace std;
+
+int N;
+int answer;
+
+void MakeSum(int curr_number)
+{
+    if(curr_number == N) 
+    {
+        answer++;
+        return;
+    }
+    
+    for(int number = 1; number <= 3; ++number)
+    {
+        int sum = curr_number + number;
+        if(sum <= N)
+        	MakeSum(sum);
+    }
+}
+
+int main()
+{
+	int T;
+    cin >> T;
+    for(int test_case = 1; test_case <= T; ++test_case)
+    {
+        cin >> N;
+        answer = 0;
+
+        for(int number = 1; number <= 3; ++number)
+            MakeSum(number);
+        
+        cout << answer << endl;
+    }
+    return 0;
+}
