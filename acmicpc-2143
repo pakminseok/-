@@ -1,0 +1,59 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int T;
+int A[1000];
+int B[1000];
+
+void MakeSumList(vector<int>& sum_list, int* arr_number, int array_size)
+{
+    for(int start_idx=0; start_idx < array_size; ++start_idx)
+    {
+        int sum = arr_number[start_idx];
+        sum_list.push_back(sum);
+        
+        for(int end_idx=start_idx+1; end_idx < array_size; ++end_idx)
+        {
+            sum += arr_number[end_idx];
+            sum_list.push_back(sum);
+        }
+    }
+    sort(sum_list.begin(), sum_list.end());
+}
+
+int main()
+{
+    cin >> T;
+    
+    int n, m;
+    
+    cin >>n;
+    for(int i=0; i<n; ++i)
+        cin >> A[i];
+    
+    cin >> m;
+    for(int i=0; i<m; ++i)
+        cin >> B[i];
+
+    vector<int> sum_A;  
+    vector<int> sum_B;
+
+    MakeSumList(sum_A, A, n);
+    MakeSumList(sum_B, B, m);
+    long long answer = 0;
+    
+    for(int i =0; i < sum_A.size(); ++i)
+    {
+        int end = upper_bound(sum_B.begin(), sum_B.end(), T-sum_A[i]) - sum_B.begin();
+        int start = lower_bound(sum_B.begin(), sum_B.end(), T-sum_A[i]) - sum_B.begin();
+        
+        answer += (end-start);
+    }
+    
+    cout << answer << endl;
+
+    return 0;
+}
