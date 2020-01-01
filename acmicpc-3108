@@ -1,0 +1,91 @@
+#include <iostream>
+#include <cstring>
+#include <vector>
+
+#define MAX_SIZE 1001
+using namespace std;
+
+vector<pair<int, int>> matrix[MAX_SIZE][MAX_SIZE];
+bool visit[MAX_SIZE][MAX_SIZE];
+int N;
+int start_x = 500;
+int start_y = 500;
+
+void Init()
+{
+     for(int row = 0; row < N; ++row)
+        for(int col =0; col < N; ++col)
+            matrix[row][col].clear();
+
+    memset(visit, false, sizeof(visit));
+}
+
+void MakeSquae(int x1, int y1, int x2, int y2)
+{
+    for(int col = y1; col < y2; ++col)
+    {
+        matrix[x1][col+1].push_back(make_pair(x1, col));
+        matrix[x1][col].push_back(make_pair(x1, col+1));
+    }
+    for(int row = x1; row < x2; ++row)
+    {
+        matrix[row+1][y2].push_back(make_pair(row, y2));
+        matrix[row][y2].push_back(make_pair(row+1, y2));
+    }
+    for(int col = y2; col > y1; --col)
+    {
+        matrix[x2][col-1].push_back(make_pair(x2, col));
+        matrix[x2][col].push_back(make_pair(x2, col-1));
+    }
+    for(int row = x2; row > x1; --row)
+    {
+        matrix[row-1][y1].push_back(make_pair(row, y1));
+        matrix[row][y1].push_back(make_pair(row-1, y1));
+    }
+}
+
+void DrawSquare(int row, int col)
+{
+    if(visit[row][col]) return;
+    
+    visit[row][col] = true;
+    
+    for(int i = 0; i < matrix[row][col].size(); ++i)
+    {
+        DrawSquare(matrix[row][col][i].first, matrix[row][col][i].second); 
+    }
+}
+
+int main()
+{
+    Init();
+    cin >> N;
+    
+    for(int square_idx = 1; square_idx <= N; ++square_idx)
+    {
+        int x1, y1, x2, y2;
+        cin >> x1 >> y1 >> x2 >> y2;
+
+        MakeSquae(x1 + 500, y1 +500, x2 + 500, y2 +500);
+    }
+    
+    int num_of_PU = 0;
+    
+    for(int row = 0; row < MAX_SIZE; ++row)
+    {
+        for(int col =0; col < MAX_SIZE; ++col)
+        {
+            if(matrix[row][col].size() != 0 && !visit[row][col])
+            {
+                DrawSquare(row, col);
+                num_of_PU++;
+            }
+        }
+    }
+    
+    if(matrix[start_x][start_y].size() != 0)
+   		num_of_PU--;
+  
+    cout << num_of_PU << endl;
+    return 0;
+}
