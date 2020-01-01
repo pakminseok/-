@@ -1,46 +1,42 @@
 #include<iostream>
-#include <cstring>
 #include <algorithm>
 
 #define INF 987654321
 
 using namespace std;
 
-int price_of_pass[5];
+enum Pass{
+    one_day = 0,
+    one_month = 1,
+    three_month = 2,
+    one_year = 3
+};
+
+int price_of_pass[4];
 int plan[12];
 int min_cost;
 
-void SearchCost(int month, int price, int cost)
+void SearchCost(int month, int cost)
 {   
-	  if(month > 11) {
-        min_cost = min(min_cost, cost);
-        return;
-    }
-    if(price == price_of_pass[0]) return;
-    if(price == price_of_pass[1])
-    {
-        cost += (price*plan[month]);
-        for(int i = 0; i <5; ++i)
-            SearchCost(month + 1, price_of_pass[i], cost);
-    }
-    else if(price == price_of_pass[2])
-    {
-        cost += price;
-        for(int i = 0; i <5; ++i)
-            SearchCost(month + 1, price_of_pass[i], cost);
-    }
-    else if(price == price_of_pass[3])
-    {
-        cost += price;
-        for(int i = 0; i <5; ++i)
-            SearchCost(month + 3, price_of_pass[i], cost);
-    }
-    else if(price == price_of_pass[4])
-    {
-        cost += price;
-        min_cost = min(min_cost, cost);
-        return;
-    }
+	if(month > 11) 
+	{
+		min_cost = min(min_cost, cost);
+		return;
+	}
+
+	if(plan[month] == 0) 
+	{
+		SearchCost(month + 1, cost);
+		return;
+	}
+
+	else
+	{
+		SearchCost(month + 1, cost + (price_of_pass[one_day]*plan[month]));
+		SearchCost(month + 1, cost + price_of_pass[one_month]);
+		SearchCost(month + 3, cost + price_of_pass[three_month]);
+		SearchCost(month + 12, cost + price_of_pass[one_year]);
+	}
 }
 
 int main(int argc, char** argv)
@@ -52,17 +48,16 @@ int main(int argc, char** argv)
 	
 	for(test_case = 1; test_case <= T; ++test_case)
 	{
-        min_cost = INF;
-        price_of_pass[0] = 0;
-		    cin >> price_of_pass[1] >> price_of_pass[2] >> price_of_pass[3] >> price_of_pass[4];
-            
-        for(int month = 1; month <= 12; ++month)
-            cin >> plan[month-1];
-        
-        for(int i = 0; i <5; ++i)
-            SearchCost(0, price_of_pass[i], 0);
-        
-        cout <<"#" <<test_case<<" "<<min_cost << endl;
+		min_cost = INF;
+
+		for(int i = 0; i < 4; ++i)
+		    cin >> price_of_pass[i];
+		for(int month = 1; month <= 12; ++month)
+		    cin >> plan[month-1];
+
+		SearchCost(0, 0);
+
+		cout <<"#" <<test_case<<" "<<min_cost << endl;
 	}
 	return 0;
 }
