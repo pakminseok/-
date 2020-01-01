@@ -17,7 +17,7 @@ int Dc[4] = {0, 0, -1, 1};
 
 void MakeLine(int row, int col, int length_line, bool cut)
 {
-	  visit[row][col] = true;
+    visit[row][col] = true;
     answer = max(answer, length_line);
     for(int direction = 0; direction < 4; ++direction)
     {
