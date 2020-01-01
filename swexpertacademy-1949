@@ -65,32 +65,33 @@ int main(int argc, char** argv)
 	
 	for(test_case = 1; test_case <= T; ++test_case)
 	{
-        memset(visit, false, sizeof(visit));
-        answer = 0;
-        max_height = 0;
-        
-		    cin >> N >> K;
-        for(int row = 0; row < N; ++row)
-        {
-            for(int col = 0; col < N; ++col)
-            {
-                cin >> Road[row][col];
-                max_height = max(max_height, Road[row][col]);
-            }
-        }
+		memset(visit, false, sizeof(visit));
+		answer = 0;
+		max_height = 0;
 
-        for(int row = 0; row < N; ++row)
-        {
-            for(int col = 0; col < N; ++col)
-            {
-                if(Road[row][col] == max_height)
-                {
-                    MakeLine(row, col, 1, false);
-                }
-            }
-        }
+		cin >> N >> K;
+		for(int row = 0; row < N; ++row)
+		{
+		    for(int col = 0; col < N; ++col)
+		    {
+			cin >> Road[row][col];
+			max_height = max(max_height, Road[row][col]);
+		    }
+		}
+
+		for(int row = 0; row < N; ++row)
+		{
+		    for(int col = 0; col < N; ++col)
+		    {
+			if(Road[row][col] == max_height)
+			{
+			    MakeLine(row, col, 1, false);
+			}
+		    }
+		}
 		
-        cout << "#" <<test_case<<" "<<answer<<endl;
+        	cout << "#" <<test_case<<" "<<answer<<endl;
 	}
+	
 	return 0;
 }
