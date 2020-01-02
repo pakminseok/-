@@ -1,0 +1,109 @@
+#include<iostream>
+#include <cstring>
+using namespace std;
+
+struct MicroGroup{
+    int num_of_micro;
+    int direction;
+    int sum_of_micro;
+};
+
+MicroGroup microbes[100][100];
+
+enum Direction{
+    UP = 0,
+    DOWN = 1,
+    LEFT = 2,
+    RIGHT = 3
+};
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+
+int other_side[4] = {DOWN, UP, RIGHT, LEFT};
+int N;
+
+void Move()
+{
+    MicroGroup temp[N][N];
+    memset(temp, 0, sizeof(temp));
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col = 0; col < N; ++col)
+        {
+            if(microbes[row][col].num_of_micro == 0) continue;
+            MicroGroup& curr = microbes[row][col];
+            
+            int nr = row + Dr[curr.direction];
+            int nc = col + Dc[curr.direction];
+            
+            if(nr == 0 || nr == N-1 || nc == 0 || nc == N-1)
+            {
+                curr.num_of_micro = curr.num_of_micro / 2;
+                curr.direction = other_side[curr.direction];
+            }
+            
+            if(temp[nr][nc].num_of_micro != 0)
+            {
+                temp[nr][nc].sum_of_micro += curr.num_of_micro;
+                if(curr.num_of_micro > temp[nr][nc].num_of_micro)
+                {
+                    temp[nr][nc].num_of_micro = curr.num_of_micro;
+                    temp[nr][nc].direction = curr.direction;
+                }
+            }
+            else
+            {
+                temp[nr][nc].num_of_micro = curr.num_of_micro;
+                temp[nr][nc].sum_of_micro = curr.num_of_micro;
+                temp[nr][nc].direction = curr.direction;
+            }
+        }
+    }
+    
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col = 0; col < N; ++col)
+        {
+            microbes[row][col].num_of_micro = temp[row][col].sum_of_micro;
+            microbes[row][col].direction =  temp[row][col].direction;
+        }
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	
+	cin>>T;
+
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        int M, K;
+        
+        cin >> N >> M >> K;
+        memset(microbes, 0, sizeof(microbes));
+        
+        for(int k=1; k<= K; ++k)
+        {
+            int row, col, num_of_microbe, direction;
+            cin >> row >> col >> num_of_microbe >> direction;
+            
+            microbes[row][col] = {num_of_microbe, direction-1};
+        }
+		
+        for(int mtime =0; mtime < M; ++mtime)
+        {
+            Move();
+        }
+        
+        int sum = 0;
+        
+        for(int row=0; row <  N; ++row)
+            for(int col = 0; col < N; ++col)
+                sum += microbes[row][col].num_of_micro;
+        
+        cout << "#"<<test_case<<" "<<sum<<endl;
+	}
+	return 0;
+}
