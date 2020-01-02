@@ -60,31 +60,31 @@ int main(int argc, char** argv)
 {
 	int test_case;
 	int T;
-    
+
 	cin>>T;
 
 	for(test_case = 1; test_case <= T; ++test_case)
 	{
-        answer = 0;
-        memset(visit, 0, sizeof(visit));
-        memset(tunnel, 0, sizeof(tunnel));
-		    
-        int R, C;
-        cin >> N >> M>> R >> C >> L;
-        
-        for(int row = 0; row < N; ++row)
-            for(int col=0; col < M; ++col)
-                cin >> tunnel[row][col];
-                
-        visit[R][C] = true;
-        Move(R, C, 1);
-        
-        for(int row = 0; row < N; ++row)
-            for(int col=0; col < M; ++col)
-                if(visit[row][col])
-                    answer++;
-        
-        cout <<"#"<<test_case << " " <<answer << endl;
+		answer = 0;
+		memset(visit, 0, sizeof(visit));
+		memset(tunnel, 0, sizeof(tunnel));
+
+		int R, C;
+		cin >> N >> M>> R >> C >> L;
+
+		for(int row = 0; row < N; ++row)
+		    for(int col=0; col < M; ++col)
+			cin >> tunnel[row][col];
+
+		visit[R][C] = true;
+		Move(R, C, 1);
+
+		for(int row = 0; row < N; ++row)
+		    for(int col=0; col < M; ++col)
+			if(visit[row][col])
+			    answer++;
+
+		cout <<"#"<<test_case << " " <<answer << endl;
 	}
 	return 0;
 }
