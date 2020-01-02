@@ -1,0 +1,90 @@
+#include<iostream>
+#include <cstring>
+
+using namespace std;
+
+enum Direction{
+    UP = 0,
+    DOWN = 1,
+    LEFT = 2,
+    RIGHT = 3,
+};
+
+int N, M, L;
+int answer;
+int tunnel[50][50];
+int visit[50][50];
+
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+//is_open[pipe_type][Direction]
+bool is_open[8][4] = {
+    {0, 0, 0, 0},
+    {1, 1, 1, 1},
+    {1, 1, 0, 0},
+    {0, 0, 1, 1},
+    {1, 0, 0, 1},
+    {0, 1, 0, 1},
+    {0, 1, 1, 0},
+    {1, 0, 1, 0}
+};
+
+int other_side[4] = {DOWN, UP, RIGHT, LEFT};
+
+void Move(int row, int col, int time)
+{
+    if(time == L) return;
+    
+    for(int direction = 0; direction < 4; ++direction)
+    {
+        int next_row = row + Dr[direction];
+        int next_col = col + Dc[direction];
+        
+        if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > M - 1) continue;
+        
+        int curr_type = tunnel[row][col];
+        int next_type = tunnel[next_row][next_col];
+        
+        if(is_open[curr_type][direction] && is_open[next_type][other_side[direction]])
+        {
+            if(!visit[next_row][next_col] || visit[next_row][next_col] > visit[row][col] + 1)
+            {
+                visit[next_row][next_col] = time + 1;
+            	Move(next_row, next_col, time+1);
+            }
+        }
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+    
+	cin>>T;
+
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        answer = 0;
+        memset(visit, 0, sizeof(visit));
+        memset(tunnel, 0, sizeof(tunnel));
+		    
+        int R, C;
+        cin >> N >> M>> R >> C >> L;
+        
+        for(int row = 0; row < N; ++row)
+            for(int col=0; col < M; ++col)
+                cin >> tunnel[row][col];
+                
+        visit[R][C] = true;
+        Move(R, C, 1);
+        
+        for(int row = 0; row < N; ++row)
+            for(int col=0; col < M; ++col)
+                if(visit[row][col])
+                    answer++;
+        
+        cout <<"#"<<test_case << " " <<answer << endl;
+	}
+	return 0;
+}
