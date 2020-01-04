@@ -4,29 +4,36 @@
 #include <cstring>
 
 #define INF 987654321
+#define MAX_SIZE_LAB 50
+#define MAX_SIZE_VIRUS 10
 
 using namespace std;
 
-int Lab[50][50];
-int spread_time[50][50];
+struct Point{
+    int row;
+    int col;
+};
+
+int Lab[MAX_SIZE_LAB][MAX_SIZE_LAB];
+int spread_time[MAX_SIZE_LAB][MAX_SIZE_LAB];
 int N, M;
-vector<pair<int, int>> virus;
-bool visit[10];
+vector<Point> virus;
+bool active[MAX_SIZE_VIRUS];
 int num_of_blank;
 int answer;
 
 int Dr[4] = {-1, 1, 0 ,0};
 int Dc[4] = {0, 0, -1, 1};
 
-void SpreadVirus(queue<pair<int, int>> viruses)
+void SpreadVirus(queue<Point> viruses)
 {
     int num_of_remain_blank = num_of_blank;
     int total_time = 0;
     
     while(!viruses.empty())
     {
-        int row = viruses.front().first;
-        int col = viruses.front().second;
+        int row = viruses.front().row;
+        int col = viruses.front().col;
         viruses.pop();
         
         for(int direction = 0; direction < 4; ++direction)
@@ -44,7 +51,7 @@ void SpreadVirus(queue<pair<int, int>> viruses)
                         num_of_remain_blank = num_of_remain_blank - 1;
                         total_time= spread_time[next_row][next_col];
                     }
-                    viruses.push(make_pair(next_row, next_col));
+                    viruses.push({next_row, next_col});
                 }
             }
         }
@@ -58,13 +65,13 @@ void ActivateVirus(int index_of_virus, int cnt)
     if(cnt == M)
     {
         memset(spread_time, -1, sizeof(spread_time));
-        queue<pair<int, int>> active_virus;
+        queue<Point> active_virus;
         for(int index = 0; index < virus.size(); ++index)
         {
-            if(visit[index])
+            if(active[index])
             {
                 active_virus.push(virus[index]);
-                spread_time[virus[index].first][virus[index].second] = 0;
+                spread_time[virus[index].row][virus[index].col] = 0;
             }
         }
         SpreadVirus(active_virus);
@@ -75,9 +82,9 @@ void ActivateVirus(int index_of_virus, int cnt)
     {
         for(int index = index_of_virus; index < virus.size(); ++index)
         {
-            visit[index] = true;
+            active[index] = true;
             ActivateVirus(index + 1, cnt + 1);
-            visit[index] = false;
+            active[index] = false;
         }
     }
 }
@@ -87,7 +94,7 @@ int main()
     num_of_blank = 0;
     answer = INF;
     virus.clear();
-    memset(visit, false, sizeof(visit));
+    memset(active, false, sizeof(active));
     
     cin >> N >> M;
     
@@ -99,7 +106,7 @@ int main()
             if(Lab[row][col] == 0)
                 num_of_blank++;
             else if(Lab[row][col] == 2)
-                virus.push_back(make_pair(row, col));
+                virus.push_back({row, col});
         }
     }
     
