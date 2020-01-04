@@ -1,0 +1,114 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <cstring>
+
+#define INF 987654321
+
+using namespace std;
+
+int Lab[50][50];
+int spread_time[50][50];
+int N, M;
+vector<pair<int, int>> virus;
+bool visit[10];
+int num_of_blank;
+int answer;
+
+int Dr[4] = {-1, 1, 0 ,0};
+int Dc[4] = {0, 0, -1, 1};
+
+void SpreadVirus(queue<pair<int, int>> viruses)
+{
+    int num_of_remain_blank = num_of_blank;
+    int total_time = 0;
+    
+    while(!viruses.empty())
+    {
+        int row = viruses.front().first;
+        int col = viruses.front().second;
+        viruses.pop();
+        
+        for(int direction = 0; direction < 4; ++direction)
+        {
+            int next_row = row + Dr[direction];
+            int next_col = col + Dc[direction];
+            
+            if(next_row >=0 && next_row <= N-1 && next_col >=0 && next_col <= N-1)
+            {
+                if(Lab[next_row][next_col] != 1 && spread_time[next_row][next_col] == -1)
+                {
+                    spread_time[next_row][next_col] = spread_time[row][col] + 1;
+                    if(Lab[next_row][next_col] == 0)
+                    {
+                        num_of_remain_blank = num_of_remain_blank - 1;
+                        total_time= spread_time[next_row][next_col];
+                    }
+                    viruses.push(make_pair(next_row, next_col));
+                }
+            }
+        }
+    }
+    if(num_of_remain_blank == 0)
+        answer = (answer > total_time ? total_time : answer);
+}
+
+void ActivateVirus(int index_of_virus, int cnt)
+{
+    if(cnt == M)
+    {
+        memset(spread_time, -1, sizeof(spread_time));
+        queue<pair<int, int>> active_virus;
+        for(int index = 0; index < virus.size(); ++index)
+        {
+            if(visit[index])
+            {
+                active_virus.push(virus[index]);
+                spread_time[virus[index].first][virus[index].second] = 0;
+            }
+        }
+        SpreadVirus(active_virus);
+        return;
+    }
+    
+    else
+    {
+        for(int index = index_of_virus; index < virus.size(); ++index)
+        {
+            visit[index] = true;
+            ActivateVirus(index + 1, cnt + 1);
+            visit[index] = false;
+        }
+    }
+}
+
+int main()
+{
+    num_of_blank = 0;
+    answer = INF;
+    virus.clear();
+    memset(visit, false, sizeof(visit));
+    
+    cin >> N >> M;
+    
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col =0; col < N; ++col)
+        {
+            cin >> Lab[row][col];
+            if(Lab[row][col] == 0)
+                num_of_blank++;
+            else if(Lab[row][col] == 2)
+                virus.push_back(make_pair(row, col));
+        }
+    }
+    
+    ActivateVirus(0, 0);
+    
+    if(answer == INF)
+        cout << -1 << endl;
+    else
+        cout << answer << endl;
+	
+	return 0;
+}
