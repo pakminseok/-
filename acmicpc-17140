@@ -1,0 +1,113 @@
+#include <iostream>
+#include <cstring>
+#include <vector>
+#include <map>
+#include <algorithm>
+
+#define MAX_SIZE 100
+
+using namespace std;
+
+int A[MAX_SIZE][MAX_SIZE];
+
+int num_of_row;
+int num_of_col;
+
+bool Comp(pair<int, int> A, pair<int, int> B)
+{
+    if(A.second == B.second)
+        return A.first < B.first;
+    return A.second < B.second;
+}
+
+void CalculateR()
+{
+    int backup_A[MAX_SIZE][MAX_SIZE] = {0};
+    int max_col = 0;
+    for(int row = 0; row < num_of_row; ++row)
+    {
+        map<int, int> count_of_num;
+        
+        for(int col = 0; col < num_of_col; ++col)
+            count_of_num[A[row][col]] +=1;
+       
+        vector<pair<int, int>> number_and_count(count_of_num.begin(), count_of_num.end());
+        sort(number_and_count.begin(), number_and_count.end(), Comp);
+        
+        int col = 0;
+        
+        for(int index = 0; index < number_and_count.size() && col < MAX_SIZE; ++index)
+        {
+            if(number_and_count[index].first != 0)
+            {
+                backup_A[row][col] = number_and_count[index].first;
+                backup_A[row][col+1] = number_and_count[index].second;
+                col = col + 2;
+            }
+        }
+        max_col = max(max_col, col);
+    }
+    num_of_col = max_col;
+    memcpy(A, backup_A, sizeof(A));
+}
+
+void CalculateC()
+{
+    int backup_A[MAX_SIZE][MAX_SIZE] = {0};
+    int max_row = 0;
+    for(int col = 0; col < num_of_col; ++col)
+    {
+        map<int, int> count_of_num;
+        
+        for(int row = 0; row < num_of_row; ++row)
+            count_of_num[A[row][col]] +=1;
+       
+        vector<pair<int, int>> number_and_count(count_of_num.begin(), count_of_num.end());
+        sort(number_and_count.begin(), number_and_count.end(), Comp);
+        
+        int row = 0;
+        
+        for(int index = 0; index < number_and_count.size() && row < MAX_SIZE; ++index)
+        {
+            if(number_and_count[index].first != 0)
+            {
+                backup_A[row][col] = number_and_count[index].first;
+                backup_A[row+1][col] = number_and_count[index].second;
+                row = row + 2;
+            }
+        }
+        max_row = max(max_row, row);
+    }
+    num_of_row = max_row;
+    memcpy(A, backup_A, sizeof(A));
+}
+
+int main()
+{
+    memset(A, 0, sizeof(A));
+    num_of_row = 3;
+    num_of_col = 3;
+    
+	  int r, c, k;
+    cin >> r >> c >> k;
+    
+    for(int row = 0; row < num_of_row; ++row)
+        for(int col = 0; col < num_of_col; ++col)
+            cin >> A[row][col];
+    
+    int time_cost = 0;
+    while(A[r-1][c-1] != k && time_cost <= 100)
+    {
+        if(num_of_row >= num_of_col)
+            CalculateR();
+        else
+            CalculateC();
+        time_cost++;
+    }
+    
+    if(time_cost > 100)
+    	cout << -1 << endl;    
+    else
+        cout << time_cost << endl;
+    return 0;
+}
