@@ -1,0 +1,45 @@
+#include <iostream>
+#include <algorithm>
+
+#define MAX_SIZE 100000
+#define INF 100000
+
+using namespace std;
+
+int arr_number[MAX_SIZE];
+
+int main()
+{
+   	int N, S;
+    cin >> N >> S;
+    for(int index_number = 0; index_number < N; ++index_number)
+        cin >> arr_number[index_number];
+    
+    int answer = INF;
+    
+    int left = 0, right = 0;
+    int sum = arr_number[left];
+    while(left <= right && right < N)
+    {
+        if(sum >= S)
+        {
+            answer = min(answer, right-left+1);
+            sum -= arr_number[left];
+            left++;
+            if(left > right)
+                right = left;
+        }
+        else
+        {
+            right++;
+            if(right > N-1)
+                break;
+            sum += arr_number[right];
+        }
+    }
+	
+    if(answer == INF)
+        answer = 0;
+    cout << answer << endl;
+    return 0;
+}
