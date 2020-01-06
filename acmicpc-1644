@@ -1,0 +1,84 @@
+#include <iostream>
+#include <cstring>
+#include <vector>
+
+using namespace std;
+
+bool is_primary[4000000];
+vector<int> primary_numbers;
+
+void MakePrimaryNumber(const int& Number)
+{
+    for(int num = 2; num <= Number; ++num)
+    {
+        if(!is_primary[num]) continue;
+        
+        for(int x = 2; x*x <= num; ++x)
+        {
+            if(num % x == 0)
+            {
+                is_primary[num] = false;
+                break;
+            }
+        }
+    }
+    
+    for(int num = 2; num <= Number; ++num)
+    	if(is_primary[num])
+            primary_numbers.push_back(num);
+        
+}
+
+int solve(const int& N)
+{
+    int answer = 0;
+    int left = 0;
+    int right = 0;
+    int sum = primary_numbers[0];
+    
+    while(right < primary_numbers.size())
+    {
+        if(sum >= N)
+        {
+            if(sum == N)
+            {
+                answer++;
+                right++;
+                if(right == primary_numbers.size())
+                    break;
+                sum +=primary_numbers[right];
+            }
+            sum -= primary_numbers[left];
+            left++;
+        }
+        else
+        {
+            right++;
+            if(right == primary_numbers.size())
+                    break;
+            sum += primary_numbers[right];
+        }
+    }
+    
+    return answer;
+}
+
+int main()
+{
+    memset(is_primary, true, sizeof(is_primary));
+    primary_numbers.clear();
+   	
+    int N;
+    cin >> N;
+    
+    if(N == 1)
+    {
+        cout << 0 << endl;
+        return 0;
+    }
+    
+    MakePrimaryNumber(N);
+	  cout << solve(N)<<endl;
+    
+    return 0;
+}
