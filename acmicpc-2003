@@ -1,0 +1,41 @@
+#include <iostream>
+#define MAX_SIZE 10000
+using namespace std;
+
+int A[MAX_SIZE];
+
+int main()
+{
+   	int N, M;
+    cin >> N >> M;
+    for(int index_number = 0; index_number < N; ++index_number)
+        cin >> A[index_number];
+    
+    int answer = 0;
+    
+    int left = 0;
+    int right = 0;
+    int sum = A[left];
+    while(right < N)
+    {
+        if(sum >= M)
+        {
+            if(sum == M)
+            {
+                answer++;
+                right++;
+                sum += A[right];
+            }
+            sum -= A[left];
+            left++;
+        }
+        else
+        {
+            right++;
+            sum += A[right];
+        }
+    }
+    
+    cout << answer << endl;
+    return 0;
+}
