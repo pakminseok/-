@@ -1,0 +1,103 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int sudoku[9][9];
+vector<pair<int, int>> blank;
+bool stop;
+
+void PrintSudoku()
+{
+   	for(int row = 0; row < 9; ++row)
+    {
+        for(int col = 0; col < 9; ++col)
+        {
+            cout << sudoku[row][col]<<" " ;
+        }
+        cout << endl;
+    }
+}
+
+bool can_garo(int row, int number)
+{
+    for(int c = 0; c<9; ++c)
+    {
+        if(sudoku[row][c] == number)
+            return false;
+    }
+    
+    return true;
+}
+
+bool can_sero(int col, int number)
+{
+    for(int r = 0; r<9; ++r)
+    {
+        if(sudoku[r][col] == number)
+            return false;
+    }
+    
+    return true;
+}
+
+bool can_square(int row, int col, int number)
+{
+    row = (row/3)*3;
+    col = (col/3)*3;
+
+    for(int r = row; r < row+3; ++r)
+    {
+        for(int c = col; c < col+3; ++c)
+        {
+             if(sudoku[r][c] == number)
+            	return false;
+        }
+    }
+    return true;
+}
+
+void MakeSudoku(int blank_index)
+{
+    if(stop) return;
+    
+    if(blank_index == blank.size())
+    {
+        PrintSudoku();
+        stop = true;
+        return;
+    }
+    
+    int row = blank[blank_index].first;
+    int col = blank[blank_index].second;
+    
+    for(int num = 1; num <= 9; ++num)
+    {
+        if(can_garo(row, num) && can_sero(col, num) && can_square(row, col, num))
+        {
+            sudoku[row][col] = num;
+            MakeSudoku(blank_index+1);
+            sudoku[row][col] = 0;
+        }
+    }
+}
+
+int main()
+{
+    blank.clear();
+    stop = false;
+    
+	  for(int row = 0; row < 9; ++row)
+    {
+        for(int col = 0; col < 9; ++col)
+        {
+            cin >> sudoku[row][col];
+            if(sudoku[row][col] == 0)
+                blank.push_back(make_pair(row, col));
+        }
+    }
+
+    MakeSudoku(0);
+    
+    return 0;
+}
