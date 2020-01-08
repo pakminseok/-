@@ -1,0 +1,92 @@
+#include <iostream>
+#include <cstring>
+#include <queue>
+
+#define MAX_NUM_OF_PARKING 101
+#define MAX_NUM_OF_CAR 2001
+using namespace std;
+
+int charge_per_weight[MAX_NUM_OF_PARKING];
+bool parking_lot_empty[MAX_NUM_OF_PARKING];
+
+int parking_where[MAX_NUM_OF_CAR];
+int weight_of_car[MAX_NUM_OF_CAR];
+
+int revenue;
+int n, m;
+
+int IndexOfEmptyParking()
+{
+    for(int index = 1; index <= n; ++index)
+    {
+        if(parking_lot_empty[index])
+            return index;
+    }
+    return 0;
+}
+
+void solve()
+{
+    queue<int> wait_car;
+    
+    for(int come_and_go = 1; come_and_go <= 2*m; ++come_and_go)
+    {
+        int car_index;
+    	  cin >> car_index;
+        
+        //come
+        if(car_index > 0)
+        {
+            wait_car.push(car_index);
+            int parking_lot = IndexOfEmptyParking();
+            if(parking_lot != 0)
+            {
+                parking_where[wait_car.front()] = parking_lot;
+                wait_car.pop();
+                parking_lot_empty[parking_lot] = false;
+            }
+        }
+        //go
+        else if(car_index < 0)
+        {
+            car_index = -car_index;
+            parking_lot_empty[parking_where[car_index]] = true;
+            revenue += (weight_of_car[car_index]*charge_per_weight[parking_where[car_index]]);
+            
+            if(!wait_car.empty())
+            {
+                parking_where[wait_car.front()] = parking_where[car_index];
+                wait_car.pop();
+                parking_lot_empty[parking_where[car_index]] = false;
+            }
+        }        
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+
+	cin>>T;
+
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        memset(parking_lot_empty, true, sizeof(parking_lot_empty));
+		    memset(parking_where, 0, sizeof(parking_where));
+        revenue = 0;
+        
+        cin >> n >> m;
+        
+        for(int index = 1; index <= n; ++index)
+            cin >> charge_per_weight[index];
+        for(int index = 1; index <= m; ++index)
+            cin >> weight_of_car[index];
+        
+        solve();
+        
+		    cout <<"#"<<test_case<<" "<<revenue<<endl;
+
+	}
+	return 0;
+}
