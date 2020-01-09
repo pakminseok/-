@@ -1,0 +1,98 @@
+#include<iostream>
+#include<algorithm>
+#include<cstring>
+
+#define MAX_SIZE 20
+#define MAX_DESSERT 100
+
+using namespace std;
+
+int dessert_cafe[MAX_SIZE][MAX_SIZE];
+bool visit_cafe[MAX_DESSERT+1];
+int N;
+int max_dessert;
+
+int CountDessert(int R, int C, int right_direction, int left_direction)
+{
+    int num_of_dessert = 1;
+   	visit_cafe[dessert_cafe[R][C]] = true;
+    for(int d1 = 1; d1 <= right_direction; ++d1)
+    {
+        int next_row = R + d1;
+        int next_col = C + d1;
+        if(visit_cafe[dessert_cafe[next_row][next_col]]) 
+            return 0;
+        visit_cafe[dessert_cafe[next_row][next_col]] = true;
+        num_of_dessert++;
+    }
+    for(int d2 = 1; d2 <= left_direction; ++d2)
+    {
+        int next_row = R + right_direction + d2;
+        int next_col = C + right_direction - d2;
+        if(visit_cafe[dessert_cafe[next_row][next_col]]) 
+            return 0;
+        visit_cafe[dessert_cafe[next_row][next_col]] = true;
+        num_of_dessert++;
+    }
+    for(int d2 = 1; d2 <= left_direction; ++d2)
+    {
+        int next_row = R + d2;
+        int next_col = C - d2;
+        if(visit_cafe[dessert_cafe[next_row][next_col]]) 
+            return 0;
+        visit_cafe[dessert_cafe[next_row][next_col]] = true;
+        num_of_dessert++;
+    }
+    for(int d1 = 1; d1 < right_direction; ++d1)
+    {
+        int next_row = R + left_direction + d1;
+        int next_col = C - left_direction + d1;
+        if(visit_cafe[dessert_cafe[next_row][next_col]]) 
+            return 0;
+        visit_cafe[dessert_cafe[next_row][next_col]] = true;
+        num_of_dessert++;
+    }
+    
+    
+    return num_of_dessert;
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+
+	cin>>T;
+	
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        max_dessert = 0;
+        
+		    cin >> N;
+        
+        for(int row = 0; row < N; ++row)
+            for(int col = 0; col < N; ++col)
+                cin >> dessert_cafe[row][col];
+		
+        for(int row = 0; row < N - 2; ++row)
+        {
+            for(int col = 1; col < N - 1; ++col)
+            {
+                for(int d1 = 1; col + d1 < N; ++d1)
+                {
+                    for(int d2 = 1; col - d2 >= 0 && row + d1 + d2 < N ; ++d2)
+                    {
+                        memset(visit_cafe, false, sizeof(visit_cafe));
+                        max_dessert = max(max_dessert, CountDessert(row, col, d1, d2));
+                    }
+                }
+            }
+        }
+        
+        if(max_dessert == 0)
+            max_dessert = -1;
+		    
+        cout << "#"<<test_case<< " " << max_dessert<<endl;
+	}
+	return 0;
+}
