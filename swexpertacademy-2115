@@ -1,0 +1,95 @@
+#include<iostream>
+#include <algorithm>
+
+#define MAX_SIZE 10
+using namespace std;
+
+int N, M, C;
+int hive[MAX_SIZE][MAX_SIZE];
+int max_sum;
+int max_first_income;
+int max_second_income;
+
+void MakeIncomeFirst(int start_index, int end, int row, int sum, int income)
+{
+    if(start_index == end)
+    {
+        if(sum <= C)
+            max_first_income = max(max_first_income, income);
+        return;
+    }
+    for(int index = start_index; index < end; ++index)
+    {
+        MakeIncomeFirst(index+1, end, row, sum, income);
+        MakeIncomeFirst(index+1, end, row, sum +  hive[row][index], income +(hive[row][index]*hive[row][index]));
+    }
+}
+void MakeIncomeSecond(int start_index, int end, int row, int sum, int income)
+{
+    if(start_index == end)
+    {
+        if(sum <= C)
+            max_second_income = max(max_second_income, income);
+        return;
+    }
+    for(int index = start_index; index < end; ++index)
+    {
+        MakeIncomeSecond(index+1, end, row, sum, income);
+        MakeIncomeSecond(index+1, end, row, sum +  hive[row][index], income +(hive[row][index]*hive[row][index]));
+    }
+}
+
+void Choose(int first_row, int second_row, int first_col, int second_col)
+{
+    max_first_income = 0;
+    max_second_income = 0;
+    
+    MakeIncomeFirst(first_col, first_col+M, first_row, 0, 0);
+    MakeIncomeSecond(second_col, second_col+M, second_row, 0, 0);
+    
+    max_sum = max(max_sum, max_first_income+max_second_income);
+}
+
+void Solve()
+{
+    for(int first_row = 0; first_row < N; ++first_row)
+        for(int second_row = first_row + 1; second_row < N; ++second_row)
+            for(int first_col = 0; first_col + M -1< N; ++first_col)
+                for(int second_col = 0; second_col + M -1< N; ++second_col)
+                    Choose(first_row, second_row, first_col, second_col);
+
+    if(2*M < N)
+    {
+        for(int row = 0; row < N; ++row)
+        {
+            for(int col = 0; (col + 2*M) < N; ++col)
+            {
+                int first_col_index = col;
+                int secod_col_index = col + M;
+                Choose(row, row, first_col_index, secod_col_index);
+            }
+        }
+    }
+}
+
+int main(int argc, char** argv)
+{
+    int test_case;
+    int T;
+    cin>>T;
+
+    for(test_case = 1; test_case <= T; ++test_case)
+    {
+        max_sum = 0;
+        cin >> N >> M >> C;
+        for(int row = 0; row < N; ++row)
+            for(int col = 0; col < N; ++col)
+                cin >> hive[row][col];
+
+        Solve();
+
+        cout<<"#"<<test_case<<" "<<max_sum<<endl;
+    }
+  
+	  return 0;
+}
