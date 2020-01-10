@@ -1,0 +1,136 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <cstring>
+#include <algorithm>
+
+#define MAX_SIZE 20
+
+using namespace std;
+
+struct Shark {
+	int row;
+	int col;
+	int size_of_shark;
+	int num_of_eat;
+};
+
+struct Fish {
+	int row;
+	int col;
+	int distance;
+};
+
+int N;
+int eat_time;
+int place[MAX_SIZE][MAX_SIZE];
+int Dr[4] = { -1, 1, 0, 0 };
+int Dc[4] = { 0, 0, -1, 1 };
+
+Shark baby_shark;
+vector<Fish> fish_to_eat;
+
+bool visit[MAX_SIZE][MAX_SIZE];
+bool request_help;
+
+bool Comp(Fish A, Fish B)
+{
+	if (A.distance == B.distance)
+	{
+		if (A.row == B.row)
+			return A.col < B.col;
+		else
+			return A.row < B.row;
+	}
+	else
+		return A.distance < B.distance;
+}
+
+void Move(int R, int C, int dist)
+{
+    queue<Fish> move;
+    move.push({R, C, dist});
+   
+    while(!move.empty())
+    {
+        int row = move.front().row;
+        int col = move.front().col;
+        int distance = move.front().distance;
+        move.pop();
+
+        if ((place[row][col] >= 1 && place[row][col] <= 6) && place[row][col] < baby_shark.size_of_shark)
+        {
+            fish_to_eat.push_back({ row, col, distance });
+        }
+        
+        for (int direction = 0; direction < 4; ++direction)
+        {
+            int next_row = row + Dr[direction];
+            int next_col = col + Dc[direction];
+
+            if (next_row < 0 || next_row > N - 1 || next_col < 0 || next_col > N - 1) continue;
+            if (visit[next_row][next_col]) continue;
+            if (place[next_row][next_col] > baby_shark.size_of_shark) continue;
+
+            visit[next_row][next_col] = true;
+            move.push({next_row, next_col, distance+1});
+        }
+    }
+}
+void Search()
+{
+	memset(visit, false, sizeof(visit));
+	fish_to_eat.clear();
+
+	visit[baby_shark.row][baby_shark.col] = true;
+	Move(baby_shark.row, baby_shark.col, 0);
+
+	if (fish_to_eat.size() >= 1)
+	{
+		if (fish_to_eat.size() > 1)
+			sort(fish_to_eat.begin(), fish_to_eat.end(), Comp);
+
+		eat_time += fish_to_eat[0].distance;
+		place[baby_shark.row][baby_shark.col] = 0;
+		baby_shark.row = fish_to_eat[0].row;
+		baby_shark.col = fish_to_eat[0].col;
+		place[baby_shark.row][baby_shark.col] = 9;
+		baby_shark.num_of_eat++;
+
+		if (baby_shark.num_of_eat == baby_shark.size_of_shark)
+		{
+			baby_shark.size_of_shark++;
+			baby_shark.num_of_eat = 0;
+		}
+	}
+	else
+		request_help = true;
+}
+
+int main()
+{
+	eat_time = 0;
+	request_help = false;
+	cin >> N;
+
+	for (int row = 0; row < N; ++row)
+	{
+		for (int col = 0; col < N; ++col)
+		{
+			cin >> place[row][col];
+			if (place[row][col] == 9)
+				baby_shark = { row, col, 2, 0 };
+		}
+	}
+
+	while (true)
+	{
+		Search();
+		if (request_help)
+			break;
+	}
+
+	cout << eat_time << endl;
+
+	return 0;
+}
