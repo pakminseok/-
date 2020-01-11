@@ -1,0 +1,127 @@
+#include<iostream>
+#include <cmath>
+#include <algorithm>
+
+#define INF 987654321
+#define MAX_NUM_OF_PERSON 10
+#define NUM_OF_STAIR 2
+#define MAX_ROOM_SIZE 10
+#define MAX_ARRIVED_TIME (2*MAX_ROOM_SIZE)
+#define MAX_PERSON_ON_STAIR 3
+using namespace std;
+
+struct Person{
+    int row;
+    int col;
+};
+struct Stair{
+    int row;
+    int col;
+    int length;
+};
+
+int num_of_person;
+
+Person person[MAX_NUM_OF_PERSON];
+int use_stair[MAX_NUM_OF_PERSON];
+
+Stair stairs[NUM_OF_STAIR];
+
+int answer;
+
+int DistanceTime(Person P, Stair S)
+{
+    return abs(P.row - S.row) + abs(P.col - S.col);
+}
+
+void CalculateTime()
+{
+    int total_time = 0;
+    
+    for(int stair = 0; stair < NUM_OF_STAIR; ++stair)
+    {
+        int num_of_person_at_arrived_time[MAX_ARRIVED_TIME] = {0,};
+        int num_of_person_time_on_stair[MAX_ARRIVED_TIME + MAX_NUM_OF_PERSON*MAX_NUM_OF_PERSON] = {0,};
+        for(int person_index = 0; person_index < num_of_person; ++person_index)
+        {
+              if(use_stair[person_index] == stair)
+              num_of_person_at_arrived_time[DistanceTime(person[person_index], stairs[stair])]++;
+        }
+        
+        int current_total_time = 0;
+        
+        for(int arrived_time = 1; arrived_time <= MAX_ARRIVED_TIME; ++arrived_time)
+        {
+            while(num_of_person_at_arrived_time[arrived_time] > 0)
+            {
+                num_of_person_at_arrived_time[arrived_time]--;
+                
+                int time_of_down_stair = stairs[stair].length;
+                
+                for(int walk_time = arrived_time+1; walk_time < MAX_ARRIVED_TIME + MAX_NUM_OF_PERSON*MAX_NUM_OF_PERSON; ++walk_time)
+                {
+                	if(num_of_person_time_on_stair[walk_time] < 3)
+                    {
+                        num_of_person_time_on_stair[walk_time]++;
+                        time_of_down_stair--;
+                        
+                        if(time_of_down_stair == 0)
+                        {
+                            current_total_time = max(current_total_time, walk_time + 1);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+         total_time = max(total_time, current_total_time);
+    }
+    
+    answer = min(answer, total_time);
+}
+
+void ChooseStair(int person_index)
+{
+    if(person_index == num_of_person)
+    {
+        CalculateTime();
+        return;
+    }
+    for(int stair = 0; stair < 2; ++stair)
+    {
+        use_stair[person_index] = stair;
+        ChooseStair(person_index+1);
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	
+	cin>>T;
+
+	for(test_case = 1; test_case <= T; ++test_case)
+  {
+      int N;
+      cin >> N;
+      answer = INF;
+      int num_of_stairs = 0;
+      num_of_person= 0;
+      for(int row = 0; row < N; ++row)
+      {
+          for(int col =0; col < N; ++col)
+          {
+              int value;
+              cin >> value;
+              if(value == 1) person[num_of_person++] = {row, col};
+              else if(value > 1) stairs[num_of_stairs++] = {row, col, value};
+          }
+      }
+
+      ChooseStair(0);
+
+      cout <<"#" << test_case <<" "<<answer<<endl;
+	}
+	return 0;
+}
