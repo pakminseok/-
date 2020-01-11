@@ -1,0 +1,110 @@
+#include <iostream>
+#include <algorithm>
+#include <cmath>
+
+#define INF 987654321
+#define MAX_SIZE 10
+
+using namespace std;
+
+struct Bead {
+	int row;
+	int col;
+};
+
+int answer;
+int N, M;
+char board[MAX_SIZE][MAX_SIZE];
+int Dr[4] = { -1, 1, 0, 0 };
+int Dc[4] = { 0, 0, -1, 1 };
+int reverse_direction[4] = {1, 0, 3, 2};
+
+void Move(Bead red, Bead blue, int curr_direction, int time)
+{
+    if(time > 10) return;
+    
+    Bead curr_red = red;
+    Bead curr_blue = blue;
+    
+    while(board[curr_red.row+Dr[curr_direction]][curr_red.col + Dc[curr_direction]] != '#')
+    {
+        curr_red.row = curr_red.row +Dr[curr_direction];
+        curr_red.col = curr_red.col + Dc[curr_direction];
+        if(board[curr_red.row][curr_red.col] == 'O')
+            break;
+    } 
+    while(board[curr_blue.row+Dr[curr_direction]][curr_blue.col + Dc[curr_direction]] != '#')
+    {
+        curr_blue.row = curr_blue.row +Dr[curr_direction];
+        curr_blue.col = curr_blue.col + Dc[curr_direction];
+        if(board[curr_blue.row][curr_blue.col] == 'O')
+            break;
+    }
+    
+    if(curr_red.row == curr_blue.row && curr_red.col == curr_blue.col)
+    {
+        if(board[curr_blue.row][curr_blue.col] == 'O') return;
+
+        if(abs(red.row - curr_red.row) < abs(blue.row - curr_blue.row) || abs(red.col - curr_red.col)< abs(blue.col - curr_blue.col))
+        {
+            curr_blue.row = curr_blue.row - Dr[curr_direction];
+            curr_blue.col = curr_blue.col - Dc[curr_direction];
+        }
+        else
+        {
+            curr_red.row = curr_red.row - Dr[curr_direction];
+            curr_red.col = curr_red.col - Dc[curr_direction];
+        }
+    }
+    
+    red = curr_red;
+    blue = curr_blue;
+    
+    if(board[blue.row][blue.col] == 'O') return;
+    if(board[red.row][red.col] == 'O')
+    {
+        answer = min(answer, time);
+        return;
+    }
+    
+    for(int direction = 0; direction < 4; ++direction)
+    {
+        if(reverse_direction[curr_direction] == direction || curr_direction==direction) 
+            continue;
+        Move(red, blue, direction, time+1);
+    }
+}
+
+int main()
+{
+	answer = INF;
+	cin >> N >> M;
+	Bead red, blue;
+
+	for (int row = 0; row < N; row++)
+	{
+		for (int col = 0; col < M; col++)
+		{
+			cin >> board[row][col];
+			if (board[row][col] == 'R')
+			{
+				board[row][col] = '.';
+				red = { row, col };
+			}
+			else if (board[row][col] == 'B')
+			{
+				board[row][col] = '.';
+				blue = { row, col };
+			}
+		}
+	}
+
+	for(int direction = 0; direction < 4; ++direction)
+        Move(red, blue, direction, 1);
+
+  if (answer == INF)
+		answer = -1;
+
+	cout << answer << endl;
+	return 0;
+}
