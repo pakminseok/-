@@ -6,6 +6,18 @@
 
 using namespace std;
 
+struct Point{
+    int row;
+    int col;
+};
+
+enum Direction{
+    UP = 0,
+    DOWN = 1,
+    LEFT = 2,
+    RIGHT = 3
+};
+
 int N, M;
 
 char maze[MAX_SIZE][MAX_SIZE];
@@ -15,17 +27,19 @@ int min_blocks_to_pass;
 
 int Dr[4] = {-1, 1, 0, 0};
 int Dc[4] = {0, 0, -1, 1};
+int reverse_direction[4] = {DOWN, UP, RIGHT, LEFT};
 
-void Move(int row, int col)
+void Move(int row, int col, int direction)
 {
-    queue<pair<int, int>> route;
-    route.push(make_pair(row, col));
+    queue<pair<Point, int>> route;
+    route.push(make_pair(Point{row, col}, direction));
     dist[row][col] = 0;
     
     while(!route.empty())
     {
-        int curr_row = route.front().first;
-        int curr_col = route.front().second;
+        int curr_row = route.front().first.row;
+        int curr_col = route.front().first.col;
+        int curr_direction = route.front().second;
         route.pop();
         
         if(curr_row == N-1 && curr_col == M-1)
@@ -34,19 +48,20 @@ void Move(int row, int col)
             continue;
         }
         
-        for(int direction = 0; direction < 4; ++direction)
+        for(int next_direction = 0; next_direction < 4; ++next_direction)
         {
-            int next_row = curr_row + Dr[direction];
-            int next_col = curr_col + Dc[direction];
+            int next_row = curr_row + Dr[next_direction];
+            int next_col = curr_col + Dc[next_direction];
             
             if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > M-1) continue;
+            if(curr_direction == reverse_direction[next_direction]) continue;
             
             if(maze[next_row][next_col] == '1')
             {
                 if(dist[next_row][next_col] > dist[curr_row][curr_col] +1)
                 {
                     dist[next_row][next_col] = dist[curr_row][curr_col] +1;
-                    route.push(make_pair(next_row, next_col));
+                    route.push(make_pair(Point{next_row, next_col}, next_direction));
                 }
             }
             else
@@ -54,7 +69,7 @@ void Move(int row, int col)
                  if(dist[next_row][next_col] > dist[curr_row][curr_col])
                 {
                     dist[next_row][next_col] = dist[curr_row][curr_col];
-                    route.push(make_pair(next_row, next_col));
+                    route.push(make_pair(Point{next_row, next_col}, next_direction));
                 }
             } 
         }
@@ -75,7 +90,8 @@ int main()
         }
     }
 	
-    Move(0, 0);
+    for(int direction = 0; direction < 4; ++direction)
+        Move(0, 0, direction);
 
     cout << min_blocks_to_pass << endl;
 	return 0;
