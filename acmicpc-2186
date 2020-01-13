@@ -1,0 +1,59 @@
+#include <iostream>
+#include <cstring>
+
+#define MAX_SIZE 100
+#define MAX_WORD 80
+using namespace std;
+int N, M, K;
+char alphabet_board[MAX_SIZE][MAX_SIZE];
+int visit[MAX_SIZE][MAX_SIZE][MAX_WORD];
+string word;
+int answer;
+
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+
+int MakeWord(int row, int col, int word_index)
+{
+    if(word_index == word.length()-1)
+        return 1;
+ 	  if(visit[row][col][word_index] != -1) 
+        return visit[row][col][word_index];   
+    
+    visit[row][col][word_index] = 0;
+    
+    for(int direction = 0; direction < 4; ++direction)
+    {
+        for(int k = 1; k <= K; ++k)
+        {
+            int next_row = row + Dr[direction]*k;
+            int next_col = col + Dc[direction]*k;
+
+            if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > M-1) break;
+            if(alphabet_board[next_row][next_col] != word[word_index+1]) continue;
+            
+            visit[row][col][word_index] += MakeWord(next_row, next_col, word_index+1);
+        }
+    }
+    return visit[row][col][word_index];
+}
+
+int main()
+{
+    memset(visit, -1, sizeof(visit));
+    answer=0;
+    
+    cin >> N >> M >> K;
+    for(int row = 0; row < N; ++row)
+        for(int col =0; col < M; ++col)
+            cin >> alphabet_board[row][col];
+    cin >> word;
+    
+    for(int row = 0; row < N; ++row)
+        for(int col = 0; col < M; ++col)
+            if(alphabet_board[row][col] == word[0])
+                answer = answer + MakeWord(row, col, 0);
+    
+    cout << answer << endl;
+	  return 0;
+}
