@@ -1,0 +1,82 @@
+#include <iostream>
+#include <queue>
+
+#define INF 987654321
+#define MAX_SIZE 100
+
+using namespace std;
+
+int N, M;
+
+char maze[MAX_SIZE][MAX_SIZE];
+int dist[MAX_SIZE][MAX_SIZE];
+
+int min_blocks_to_pass;
+
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+
+void Move(int row, int col)
+{
+    queue<pair<int, int>> route;
+    route.push(make_pair(row, col));
+    dist[row][col] = 0;
+    
+    while(!route.empty())
+    {
+        int curr_row = route.front().first;
+        int curr_col = route.front().second;
+        route.pop();
+        
+        if(curr_row == N-1 && curr_col == M-1)
+        {
+            min_blocks_to_pass = (min_blocks_to_pass > dist[N-1][M-1]) ? dist[N-1][M-1] : min_blocks_to_pass;
+            continue;
+        }
+        
+        for(int direction = 0; direction < 4; ++direction)
+        {
+            int next_row = curr_row + Dr[direction];
+            int next_col = curr_col + Dc[direction];
+            
+            if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > M-1) continue;
+            
+            if(maze[next_row][next_col] == '1')
+            {
+                if(dist[next_row][next_col] > dist[curr_row][curr_col] +1)
+                {
+                    dist[next_row][next_col] = dist[curr_row][curr_col] +1;
+                    route.push(make_pair(next_row, next_col));
+                }
+            }
+            else
+            {
+                 if(dist[next_row][next_col] > dist[curr_row][curr_col])
+                {
+                    dist[next_row][next_col] = dist[curr_row][curr_col];
+                    route.push(make_pair(next_row, next_col));
+                }
+            } 
+        }
+    }
+}
+
+int main()
+{
+    min_blocks_to_pass = INF;
+    
+	cin >> M >> N;
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col = 0; col < M; ++col)
+        {
+            cin >>maze[row][col];
+            dist[row][col] = INF;
+        }
+    }
+	
+    Move(0, 0);
+
+    cout << min_blocks_to_pass << endl;
+	return 0;
+}
