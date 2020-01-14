@@ -1,0 +1,43 @@
+#include <string>
+#include <vector>
+#include <algorithm>
+
+#define INF 987654321
+using namespace std;
+
+int solution(string s) {
+    int answer = INF;
+    int s_size = s.length();
+    
+    for(int pattern = 1; pattern <= s_size; ++pattern)
+    {
+        vector<string> compress;
+        compress.push_back(s.substr(0, pattern));
+        int num_of_repeat = 1;
+        for(int s_index = pattern; s_index < s_size; s_index += pattern)
+        {
+            string curr_s = s.substr(s_index, pattern);
+            
+            if(compress.back() == curr_s)
+            {
+                num_of_repeat++;
+            }
+            else
+            {
+                if(num_of_repeat > 1)
+                    compress.push_back(to_string(num_of_repeat));
+                compress.push_back(curr_s);
+                num_of_repeat = 1;
+            }
+        }
+        if(num_of_repeat > 1)
+             compress.push_back(to_string(num_of_repeat));
+
+        int compress_size = 0;
+        for(int index = 0; index < compress.size(); ++index)
+            compress_size += compress[index].size();
+        
+        answer = min(answer, compress_size);
+    }
+    return answer;
+}
