@@ -1,0 +1,58 @@
+#include <string>
+#include <vector>
+
+using namespace std;
+
+bool IsCorrect(string w, int* split_position)
+{
+    vector<char> brackets;
+    int num_of_left_bracket = 0;
+    int num_of_right_bracket = 0;
+    
+    bool is_correct = true;
+    
+    for(int index = 0; index < w.length(); ++index)
+    {
+        if(w[index] == '(')
+        {
+            brackets.push_back('(');
+            num_of_left_bracket++;
+        }
+        else
+        {
+            if(brackets.empty())
+                is_correct = false;
+            else
+                brackets.pop_back();
+            num_of_right_bracket++;
+        }
+        
+        if(num_of_left_bracket == num_of_right_bracket)
+        {
+            *split_position = index+1;
+            return is_correct;
+        }
+    }
+    
+    return is_correct;
+}
+
+string solution(string p) {
+    if(p.empty()) 
+        return p;
+    
+    int split_position = 0;
+    
+    bool is_correct = IsCorrect(p, &split_position);
+    string u = p.substr(0, split_position);
+    string v = p.substr(split_position, p.length()-split_position);
+    
+    if(IsCorrect(u, &split_position)) 
+        return u + solution(v);
+    
+    for(int index = 1; index < u.length() -1; ++index)
+        (u[index] == '(') ?  u[index] = ')' : u[index] = '(';
+    
+    string answer = '('+ solution(v) + ')' + u.substr(1, u.length()-2);
+    return answer;
+}
