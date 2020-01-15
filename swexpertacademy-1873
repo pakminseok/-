@@ -1,0 +1,192 @@
+#include<iostream>
+#include <queue>
+
+using namespace std;
+
+const int MAX_SIZE = 20;
+
+struct Tank{
+    int row;
+    int col;
+    int direction;
+};
+
+enum Direction{
+    UP = 0,
+    DOWN = 1,
+    LEFT = 2,
+    RIGHT = 3
+};
+
+char game_map[MAX_SIZE][MAX_SIZE];
+Tank tank;
+int H, W, N;
+queue<char> commands;
+
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+char tank_direction[4] = {'^', 'v', '<', '>'};
+
+void PrintMap()
+{
+    for(int row = 0; row < H; ++row)
+    {
+        for(int col = 0; col < W; ++col)
+        	cout << game_map[row][col];
+        cout << endl;
+    }
+}
+
+void PlayGame()
+{
+    while(!commands.empty())
+    {
+        char command = commands.front();
+    	  commands.pop();
+        
+        if(command == 'U')
+        {
+            tank.direction = UP;
+            
+            game_map[tank.row][tank.col] = tank_direction[tank.direction];
+            
+            int next_row = tank.row + Dr[tank.direction];
+            int next_col = tank.col + Dc[tank.direction];
+            
+            if(next_row >= 0 && next_row <= H-1 && next_col >=0 && next_col <= W-1)
+            {
+                if(game_map[next_row][next_col] == '.')
+                {
+                    game_map[next_row][next_col] = game_map[tank.row][tank.col];
+                    game_map[tank.row][tank.col] = '.';
+                    tank.row = next_row;
+                    tank.col = next_col;
+                }
+            }       
+        }
+        else if(command == 'D')
+        {
+            tank.direction = DOWN;
+            
+            game_map[tank.row][tank.col] = tank_direction[tank.direction];
+            
+            int next_row = tank.row + Dr[tank.direction];
+            int next_col = tank.col + Dc[tank.direction];
+            
+            if(next_row >= 0 && next_row <= H-1 && next_col >=0 && next_col <= W-1)
+            {
+                if(game_map[next_row][next_col] == '.')
+                {
+                    game_map[next_row][next_col] = game_map[tank.row][tank.col];
+                    game_map[tank.row][tank.col] = '.';
+                    tank.row = next_row;
+                    tank.col = next_col;
+                }
+            }
+        }
+        else if(command == 'L')
+        {
+            tank.direction = LEFT;
+            
+            game_map[tank.row][tank.col] = tank_direction[tank.direction];
+            
+            int next_row = tank.row + Dr[tank.direction];
+            int next_col = tank.col + Dc[tank.direction];
+            
+            if(next_row >= 0 && next_row <= H-1 && next_col >=0 && next_col <= W-1)
+            {
+                if(game_map[next_row][next_col] == '.')
+                {
+                    game_map[next_row][next_col] = game_map[tank.row][tank.col];
+                    game_map[tank.row][tank.col] = '.';
+                    tank.row = next_row;
+                    tank.col = next_col;
+                }
+            }
+        }
+        else if(command == 'R')
+        {
+            tank.direction = RIGHT;
+            
+            game_map[tank.row][tank.col] = tank_direction[tank.direction];
+            
+            int next_row = tank.row + Dr[tank.direction];
+            int next_col = tank.col + Dc[tank.direction];
+            
+            if(next_row >= 0 && next_row <= H-1 && next_col >=0 && next_col <= W-1)
+            {
+                if(game_map[next_row][next_col] == '.')
+                {
+                    game_map[next_row][next_col] = game_map[tank.row][tank.col];
+                    game_map[tank.row][tank.col] = '.';
+                    tank.row = next_row;
+                    tank.col = next_col;
+                }
+            }
+        }
+        else if(command == 'S')
+        {
+            int next_row_bomb = tank.row + Dr[tank.direction];
+            int next_col_bomb = tank.col + Dc[tank.direction];
+
+            while(next_row_bomb >= 0 && next_row_bomb <= H-1 && next_col_bomb >=0 && next_col_bomb <= W-1)
+            {
+                if(game_map[next_row_bomb][next_col_bomb] == '#') break;
+                
+                else if(game_map[next_row_bomb][next_col_bomb] == '*')
+                {
+                    game_map[next_row_bomb][next_col_bomb] ='.';
+                    break;
+                }
+                
+                next_row_bomb += Dr[tank.direction];
+                next_col_bomb += Dc[tank.direction];
+            }
+         }
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+
+	cin>>T;
+	
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        cin >> H >> W;
+        
+        for(int row = 0; row < H; ++row)
+        {
+            for(int col = 0; col < W; ++col)
+            {
+                cin >> game_map[row][col];
+                
+                if(game_map[row][col] == tank_direction[UP])
+                    tank = {row, col, UP};
+                else if(game_map[row][col] == tank_direction[DOWN])
+                    tank = {row, col, DOWN};
+                else if(game_map[row][col] == tank_direction[LEFT])
+                    tank = {row, col, LEFT};
+                else if(game_map[row][col] == tank_direction[RIGHT])
+                    tank = {row, col, RIGHT};
+            }
+        }
+        
+        cin >> N;
+        
+        for(int command_index = 0; command_index < N; ++command_index)
+        {
+            char command;
+            cin >> command;
+            commands.push(command);
+        }
+        
+		    PlayGame();
+
+        cout<<"#"<<test_case<<" ";
+        PrintMap();
+	}
+	return 0;
+}
