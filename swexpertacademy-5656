@@ -1,0 +1,138 @@
+#include<iostream>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+const int MAX_HEIGHT = 15;
+const int MAX_WIDTH = 12;
+const int INF = 987654321;
+
+int N, W, H;
+int block[MAX_HEIGHT][MAX_WIDTH];
+int temp[MAX_HEIGHT][MAX_WIDTH];
+bool visit[MAX_HEIGHT][MAX_WIDTH];
+int min_total;
+int beads[4];
+
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+
+int CountRemainBlock()
+{
+    int cnt = 0;
+    
+    for(int row = 0; row < H; ++row)
+        for(int col = 0; col < W; ++col)
+            if(temp[row][col] != 0)
+                cnt++;
+    
+    return cnt;
+}
+
+void EraseBlock(int row, int col)
+{
+    if(temp[row][col] == 0)
+        return;
+    if(temp[row][col] > 1)
+    {
+        for(int direction = 0; direction < 4; ++direction)
+        {
+            for(int range_bomb = 1; range_bomb < temp[row][col]; ++range_bomb)
+            {
+                int next_row = row + Dr[direction]*range_bomb;
+                int next_col = col + Dc[direction]*range_bomb;
+                
+                if(next_row < 0 || next_row > H-1 || next_col < 0 || next_col > W-1) continue;
+                if(visit[next_row][next_col]) continue;
+                visit[next_row][next_col] = true;
+                EraseBlock(next_row, next_col);
+            }
+        }
+    }
+    temp[row][col] = 0;
+}
+
+void FallDownBlock()
+{
+    for(int col = 0; col < W; ++col)
+    {
+        for(int row = H-1; row >=0; --row)
+        {
+            for(int R = row; R < H-1; ++R)
+            {
+                if(temp[R][col] != 0 && temp[R+1][col] == 0)
+            	{
+                	temp[R+1][col] = temp[R][col];
+                	temp[R][col] = 0;
+            	}
+            }
+        }
+    }
+}
+
+void FindMinTotal()
+{   
+    memcpy(temp, block, sizeof(block));
+    
+    for(int index = 0; index < N; ++index)
+    {
+        int curr_bead = beads[index];
+        int row = 0;
+        
+        while(row < H) 
+        {
+            if(temp[row][curr_bead] != 0)
+                break;
+            ++row;
+        }
+        
+        memset(visit, false, sizeof(visit));
+        EraseBlock(row, curr_bead);
+        FallDownBlock();   
+    }
+    
+    min_total = min(min_total, CountRemainBlock());
+}
+
+
+void ChooseBeadPos()
+{
+    for(beads[0] = 0; beads[0] < W; ++beads[0])
+    {
+        for(beads[1] = 0; beads[1] < W; ++beads[1])
+        {
+            for(beads[2] = 0; beads[2] < W; ++beads[2])
+            {
+                for(beads[3] = 0; beads[3] < W; ++beads[3])
+                {
+                    FindMinTotal();
+                }
+            }
+        }
+    }
+}
+
+int main(int argc, char** argv)
+{
+    int test_case;
+    int T;
+
+    cin>>T;
+	
+    for(test_case = 1; test_case <= T; ++test_case)
+    {
+          min_total = INF;
+
+          cin >> N >> W >> H;
+          for(int row = 0; row < H; ++row)
+            for(int col = 0; col < W; ++col)
+                  cin >> block[row][col];
+
+          ChooseBeadPos();
+
+          cout <<"#"<<test_case<<" "<<min_total<<endl;
+    }
+    
+	  return 0;
+}
