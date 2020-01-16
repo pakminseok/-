@@ -1,0 +1,74 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int N, K;
+vector<char> numbers;
+vector<int> password; 
+
+bool Comp(int A, int B)
+{
+    return A > B;
+}
+
+void Solve()
+{
+    int num_of_number_one_line  = N/4;
+	
+    int start_index = 0;
+    
+    while(start_index < num_of_number_one_line)
+    {
+        for(int index = start_index; index < N+start_index; index+= num_of_number_one_line)
+        {
+            int hex_to_decimal = 0;
+            int multi = 1;
+
+            for(int side_index = index + num_of_number_one_line - 1; side_index >= index; --side_index)
+            {
+                if(numbers[side_index] >= '0' && numbers[side_index] <= '9')
+                    hex_to_decimal += (numbers[side_index] - '0')*multi;
+                else
+                    hex_to_decimal += ((numbers[side_index] - 'A')+10)*multi;
+
+                multi *= 16;
+            }
+            
+            if(find(password.begin(), password.end(), hex_to_decimal) == password.end())
+                password.push_back(hex_to_decimal);
+        }
+        numbers.push_back(numbers[start_index]);
+        start_index++;
+    }
+    sort(password.begin(), password.end(), Comp);
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	cin>>T;
+
+  for(test_case = 1; test_case <= T; ++test_case)
+	{
+    numbers.clear();
+    password.clear();
+
+    cin >> N >> K;
+
+    for(int index = 0; index < N; ++index)
+    {
+        char number;
+        cin >> number;
+        numbers.push_back(number);
+    }
+            
+		Solve();
+        
+    cout << "#" << test_case<<" "<<password[K-1]<<endl;
+	}
+  
+	return 0;
+}
