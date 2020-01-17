@@ -1,0 +1,86 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+const int INF = 987654321;
+
+struct Point{
+    int row;
+    int col;
+};
+
+int N, M;
+vector<Point> home;
+vector<Point> chicken_place;
+vector<Point> chicken_place_selected;
+int min_of_distance;
+
+void CalculateDistance()
+{
+    int sum_of_distance = 0;
+    
+    for(int idx_home = 0; idx_home < home.size(); ++idx_home)
+    {
+        int curr_chicken_distance = INF;
+        for(int idx_chicken_place = 0; idx_chicken_place < M; ++idx_chicken_place)
+        {
+            int chicken_distance = abs(home[idx_home].row - chicken_place_selected[idx_chicken_place].row) +  abs(home[idx_home].col - chicken_place_selected[idx_chicken_place].col);
+        	  curr_chicken_distance = min(curr_chicken_distance, chicken_distance);
+        }
+        sum_of_distance+=curr_chicken_distance;
+    }
+    
+    min_of_distance = min(min_of_distance, sum_of_distance);
+}
+
+void ChooseChickenPlace(int chicken_index)
+{
+    if(chicken_place_selected.size() == M)
+    {
+        CalculateDistance();
+        return;
+    }
+    
+    for(int index = chicken_index; index < chicken_place.size(); ++index)
+    {
+        chicken_place_selected.push_back(chicken_place[index]);
+        ChooseChickenPlace(index + 1);
+        chicken_place_selected.pop_back();
+    }
+}
+
+void Initialize_value()
+{
+    min_of_distance = INF;
+    home.clear();
+	chicken_place.clear();
+ 	chicken_place_selected.clear();
+}
+
+int main()
+{
+    Initialize_value();
+    
+    cin >> N >> M;
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col = 0; col < N; ++col)
+        {
+            int city_info;
+            cin >> city_info;
+            
+            if(city_info == 1)
+                home.push_back({row, col});
+            else if(city_info == 2)
+                chicken_place.push_back({row, col});
+        }
+    }
+    
+    ChooseChickenPlace(0);
+    cout << min_of_distance << endl;
+    
+	  return 0;
+}
