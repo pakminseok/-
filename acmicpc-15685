@@ -8,7 +8,7 @@ const int MAX_X_SIZE = 101;
 const int MAX_Y_SIZE = 101;
 
 struct DragonCurv{
-	  int row;
+	int row;
     int col;
     int direction;
     int generation;
@@ -16,7 +16,7 @@ struct DragonCurv{
 
 bool in_curv_point[MAX_Y_SIZE][MAX_X_SIZE];
 vector<DragonCurv> dragon_curv;
-
+vector<int> direction;
 //RIGHT, UP, LEFT, DOWN
 int Dr[4] = {0, -1, 0, 1};
 int Dc[4] = {1, 0, -1, 0};
@@ -36,6 +36,16 @@ int CountSquare()
     return cnt;
 }
 
+void MakeDirection(int end_generation)
+{
+     for(int generation = 1; generation <= end_generation; ++generation)
+     {
+         int num_of_direction = direction.size();
+         for(int index = num_of_direction -1; index >=0 ; --index)
+             direction.push_back((direction[index]+1) % 4);
+     }
+}
+
 void MakeCurv()
 {
     while(!dragon_curv.empty())
@@ -44,32 +54,19 @@ void MakeCurv()
         dragon_curv.pop_back();
         
         in_curv_point[curr_curv.row][curr_curv.col] = true;
-        
-        vector<int> direction;
+       
+        direction.clear();     
         direction.push_back(curr_curv.direction);
         
-        for(int generation = 0; generation <= curr_curv.generation; ++generation)
+        MakeDirection(curr_curv.generation);
+        
+        for(int index = 0; index < direction.size(); ++index)
         {
-            for(int index = 0; index < direction.size(); ++index)
-            {
-                curr_curv.row += Dr[direction[index]];
-                curr_curv.col += Dc[direction[index]];
+            curr_curv.row += Dr[direction[index]];
+            curr_curv.col += Dc[direction[index]];
 
-                if(curr_curv.row >= 0 && curr_curv.row <= MAX_Y_SIZE - 1 && curr_curv.col >= 0 && curr_curv.col <= MAX_X_SIZE -1)
-                    in_curv_point[curr_curv.row][curr_curv.col] = true;
-            }
-            
-            vector<int> next_direction;
-
-            for(int index = direction.size() -1; index >=0 ; --index)
-                next_direction.push_back((direction[index]+1) % 4);
-            
-            if(generation != 0)
-            	for(int index = 0; index < direction.size(); ++index)
-                	next_direction.push_back(direction[index]);
-
-            direction.clear();
-            direction = next_direction;
+            if(curr_curv.row >= 0 && curr_curv.row <= MAX_Y_SIZE - 1 && curr_curv.col >= 0 && curr_curv.col <= MAX_X_SIZE -1)
+                in_curv_point[curr_curv.row][curr_curv.col] = true;
         }
     }
 }
@@ -77,20 +74,20 @@ void MakeCurv()
 int main()
 {
     memset(in_curv_point, false, sizeof(in_curv_point));
-    
+
     int N;
     cin >> N;
-    
+
     for(int curv = 1; curv <= N; ++curv)
     {
-        int x, y, direction, generation;
-        cin >> x >> y >> direction >> generation;
-        
-        dragon_curv.push_back({y, x, direction, generation});
+	int x, y, direction, generation;
+	cin >> x >> y >> direction >> generation;
+
+	dragon_curv.push_back({y, x, direction, generation});
     }
-    
+
     MakeCurv();
     cout << CountSquare() << endl;
 
-	return 0;
+    return 0;
 }
