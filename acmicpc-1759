@@ -1,0 +1,42 @@
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+int L, C;
+vector<char> alphabets;
+
+void MakePassword(int idx_alphabet, int cnt_of_vowel, int cnt_of_consonant, string result)
+{
+    if(result.length() == L)
+    {
+        if(cnt_of_vowel >= 1 && cnt_of_consonant >= 2)
+            cout <<result << endl;
+        return;
+    }
+
+    for(int index = idx_alphabet; index < alphabets.size(); ++index)
+    {
+        if(alphabets[index] == 'a' || alphabets[index] == 'e' || alphabets[index] == 'i' || alphabets[index] == 'o' || alphabets[index] == 'u')
+            MakePassword(index + 1, cnt_of_vowel+1, cnt_of_consonant, result + alphabets[index]);
+        else
+            MakePassword(index + 1, cnt_of_vowel, cnt_of_consonant+1, result + alphabets[index]);
+    }
+}
+
+int main()
+{
+    cin >> L >> C;
+    for(int index = 0; index < C; ++index)
+    {
+        char alphabet;
+        cin >> alphabet;
+        alphabets.push_back(alphabet);
+    }
+    
+    sort(alphabets.begin(), alphabets.end());
+    MakePassword(0, 0, 0, "");
+
+	return 0;
+}
