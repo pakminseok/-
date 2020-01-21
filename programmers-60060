@@ -1,0 +1,93 @@
+#include <string>
+#include <vector>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+struct Trie{
+    Trie* next[26];
+    int num_of_word;
+    
+    Trie() : num_of_word(1){
+        memset(next, 0, sizeof(next));
+    }
+    ~Trie(){
+        for(int index = 0; index <26; ++index)
+            delete next[index];
+    }
+    void Insert(const char* word)
+    {
+        if(*word != '\0')
+        {
+            int curr = *word - 'a';
+            if(next[curr] == NULL)
+                next[curr] = new Trie();
+            else
+                next[curr]->num_of_word++;
+            next[curr]->Insert(word +1);
+        }
+    }
+    int find(const char* word)
+    {
+        int curr_alphabet = *word - 'a';
+        if(*word == '?')
+        {
+            int cnt = 0;
+            for(int alphabet = 0; alphabet <26; ++alphabet)
+            {
+                if(next[alphabet] != NULL)
+                    cnt += next[alphabet]->num_of_word;
+            }
+            return cnt;
+        }
+        if(next[curr_alphabet] == NULL)
+            return 0;
+        return next[curr_alphabet]->find(word+1);
+    }
+};
+
+vector<int> solution(vector<string> words, vector<string> queries) {
+    vector<int> answer;
+    Trie *root[10001];
+    Trie *reverse_root[10001];
+    memset(root, 0, sizeof(root));
+    memset(reverse_root, 0, sizeof(reverse_root));
+    for(int idx_word = 0; idx_word < words.size(); ++idx_word)
+    {
+        int length_of_word = words[idx_word].length();
+        const char* word = words[idx_word].c_str();
+        if(root[length_of_word] == NULL)
+            root[length_of_word] = new Trie();
+        root[length_of_word]->Insert(word);
+        
+        reverse(words[idx_word].begin(), words[idx_word].end());
+        const char* reverse_word = words[idx_word].c_str();
+        if(reverse_root[length_of_word] == NULL)
+            reverse_root[length_of_word] = new Trie();
+        reverse_root[length_of_word]->Insert(reverse_word);
+    }
+    
+    for(int idx_query = 0; idx_query < queries.size(); ++idx_query)
+    {
+        int length_of_query = queries[idx_query].length();
+        if(queries[idx_query][0] != '?')
+        {
+            const char* curr_query = queries[idx_query].c_str();
+            if(root[length_of_query] != NULL)
+                answer.push_back(root[length_of_query]->find(curr_query));
+            else
+                answer.push_back(0);
+        }
+        else
+        {
+            reverse(queries[idx_query].begin(), queries[idx_query].end());
+            const char* curr_query = queries[idx_query].c_str();
+            if(reverse_root[length_of_query] != NULL)
+                answer.push_back(reverse_root[length_of_query]->find(curr_query));
+             else
+                answer.push_back(0);
+        }
+    }
+    return answer;
+}
