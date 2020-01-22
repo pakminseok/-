@@ -1,0 +1,130 @@
+#include<iostream>
+
+using namespace std;
+
+const int MAX_SIZE = 350;
+
+enum Status{
+    BLANK = 0,
+    ACTIVE = 1,
+    INACTIVE = 2,
+    DEAD = 3
+};
+
+struct Cell{
+    int status;
+    int life_power;
+    int active_time;
+};
+
+int N, M, K;
+Cell cells[MAX_SIZE][MAX_SIZE];
+
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+
+int MAX(int A, int B)
+{
+    return (A < B) ? B : A;
+}
+
+int NumOfAlive()
+{
+    int cnt = 0;
+    
+    for(int row = 0; row< N+K; ++row)
+    {
+        for(int col = 0; col < M+K; ++col)
+        {
+            if(cells[row][col].status == ACTIVE || cells[row][col].status == INACTIVE)
+                cnt++;
+        }
+    }
+    return cnt;
+}
+
+void MultiplyCell(int curr_time)
+{
+    for(int row = K/2 - curr_time/2; row < N +  K/2 + curr_time/2; ++row)
+    {
+        for(int col = K/2 - curr_time/2; col < M +  K/2 + curr_time/2; ++col)
+        {
+            if(cells[row][col].status == INACTIVE)
+            {
+                cells[row][col].active_time++;
+                if(cells[row][col].active_time == 0)
+                    cells[row][col].status = ACTIVE;
+            }
+            
+            else if(cells[row][col].status == ACTIVE)
+            {
+                for(int direction = 0; direction < 4; ++direction)
+                {
+                    int next_row = row +Dr[direction];
+                    int next_col = col + Dc[direction];
+
+                    if(cells[next_row][next_col].status == BLANK)
+                        cells[next_row][next_col].life_power = MAX(cells[next_row][next_col].life_power, cells[row][col].life_power);
+                }
+                cells[row][col].active_time++;
+                
+                if(cells[row][col].active_time == cells[row][col].life_power)
+                    cells[row][col].status = DEAD;
+            }
+        }
+    }
+    
+    for(int row = K/2 - curr_time/2; row < N +  K/2 + curr_time/2; ++row)
+    {
+        for(int col = K/2 - curr_time/2; col < M +  K/2 + curr_time/2; ++col)
+        {
+            if(cells[row][col].status == BLANK && cells[row][col].life_power != 0)
+            {
+                cells[row][col].active_time = -cells[row][col].life_power;
+                cells[row][col].status = INACTIVE;
+            }
+        }
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+
+	cin>>T;
+	
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        for(int row = 0; row< N+K; ++row)
+        {
+            for(int col = 0; col < M+K; ++col)
+            {
+                cells[row][col].status = 0;
+                cells[row][col].life_power = 0;
+                cells[row][col].active_time = 0;
+            }
+        }
+        cin >> N >> M >> K;
+		    for(int row = K/2; row< N+(K/2); ++row)
+        {
+            for(int col = K/2; col < M+(K/2); ++col)
+            {
+				        cin >> cells[row][col].life_power;
+                if(cells[row][col].life_power > 0)
+                {
+                    cells[row][col].active_time = -cells[row][col].life_power;
+                    cells[row][col].status = INACTIVE;
+                }
+            }
+        }
+        
+        for(int time = 1; time <=K; ++time)
+        {
+            MultiplyCell(time);
+        }
+        
+        cout <<"#"<<test_case<<" "<<NumOfAlive()<<endl;
+	}
+	return 0;
+}
