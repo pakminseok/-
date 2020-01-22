@@ -1,0 +1,132 @@
+#include<iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+struct Person{
+    int row;
+    int col;
+};
+
+struct AccessPoint{
+    int row;
+    int col;
+    int coverage;
+    int performance;
+};
+
+Person Person_A, Person_B;
+vector<int> direction_A, direction_B;
+vector<AccessPoint> access_point;
+int M, A;
+int Dr[5] = {0, -1, 0, 1,  0};
+int Dc[5] = {0, 0, 1, 0, -1};
+int max_sum;
+
+void Initialize()
+{
+    max_sum = 0;
+    Person_A = {0, 0}; Person_B = {9, 9};
+    direction_A.clear(); direction_B.clear();
+    access_point.clear();
+    direction_A.push_back(0); direction_B.push_back(0);
+
+    cin >> M >> A;
+    for(int direction_info = 0; direction_info < M; ++direction_info)
+    {
+        int direction;
+        cin >> direction;
+        direction_A.push_back(direction);
+    }
+
+    for(int direction_info = 0; direction_info < M; ++direction_info)
+    {
+        int direction;
+        cin >> direction;
+        direction_B.push_back(direction);
+    }
+
+    for(int ap_info = 0; ap_info < A; ++ap_info)
+    {
+        int x, y, coverage, performance;
+        cin >> x >> y >> coverage >> performance;
+        access_point.push_back({y-1, x-1, coverage, performance});
+    }
+}
+
+int MakeSum(vector<pair<int,int>> choose_A, vector<pair<int,int>> choose_B)
+{
+    int sum = 0;
+    
+    if(choose_A.empty() && choose_B.empty())
+        return sum;
+    
+    if(choose_A.empty())
+    {
+        for(int index = 0; index < choose_B.size(); ++index)
+        {
+            sum = max(sum, choose_B[index].second);
+        }
+        return sum;
+    }
+    
+    if(choose_B.empty())
+    {
+        for(int index = 0; index < choose_A.size(); ++index)
+        {
+            sum = max(sum, choose_A[index].second);
+        }
+        return sum;
+    }
+
+    for(int index_A = 0; index_A < choose_A.size(); ++index_A)
+    {
+        for(int index_B = 0; index_B < choose_B.size(); ++index_B)
+        {
+            if(choose_A[index_A].first == choose_B[index_B].first)
+            	sum = max(sum, choose_A[index_A].second);
+            else
+                sum = max(sum, choose_A[index_A].second + choose_B[index_B].second);
+        }
+    }
+    return sum;
+}
+
+void Move()
+{
+    for(int time = 0; time <= M; ++time)
+    {
+        Person_A.row = Person_A.row + Dr[direction_A[time]];
+        Person_A.col = Person_A.col + Dc[direction_A[time]];
+        Person_B.row = Person_B.row + Dr[direction_B[time]];
+        Person_B.col = Person_B.col + Dc[direction_B[time]];
+        vector<pair<int,int>> choose_A, choose_B;
+        for(int ap_index = 0; ap_index < A; ++ap_index)
+        {
+            if(access_point[ap_index].coverage >= abs(Person_A.row - access_point[ap_index].row) + abs(Person_A.col - access_point[ap_index].col))
+                choose_A.push_back(make_pair(ap_index, access_point[ap_index].performance));
+            if(access_point[ap_index].coverage >= abs(Person_B.row - access_point[ap_index].row) + abs(Person_B.col - access_point[ap_index].col))
+                choose_B.push_back(make_pair(ap_index, access_point[ap_index].performance));
+        }
+        
+        max_sum += MakeSum(choose_A, choose_B);
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	
+	cin>>T;
+	
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        Initialize();
+        Move();
+        cout << "#" << test_case <<" "<<max_sum<<endl;
+	}
+	return 0;
+}
