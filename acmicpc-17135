@@ -1,0 +1,135 @@
+#include<iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <cstring>
+
+using namespace std;
+
+const int INF = 987654321;
+int answer;
+int board[15][15];
+int temp_board[15][15];
+vector<pair<int, int>> enemy;
+vector<pair<int, int>> temp_enemy;
+vector<int> archer;
+int N, M, D;
+
+int Distance(int archer_row, int archer_col, int enemy_row, int enemy_col)
+{
+   return abs(archer_row- enemy_row) + abs(archer_col - enemy_col);
+}
+
+bool EmptyEnemy()
+{
+    bool is_empty = true;
+    temp_enemy.clear();
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col = 0; col < M; ++col)
+        {
+            if(temp_board[row][col] == 1)
+            {
+                temp_enemy.push_back(make_pair(row, col));
+                is_empty = false;
+            }
+        }
+    }
+    return is_empty;
+}
+
+void MoveEnemy()
+{
+	for(int index = temp_enemy.size()-1; index >=0 ; --index)
+    {
+        int enemy_row = temp_enemy[index].first;
+        int enemy_col = temp_enemy[index].second;
+        if(temp_board[enemy_row][enemy_col] == 1)
+        {
+            temp_board[enemy_row][enemy_col] = 0;
+            if(enemy_row + 1 < N)
+                temp_board[enemy_row+1][enemy_col] = 1;
+        }
+    }
+}
+
+int Attack()
+{
+    int num_of_attack = 0;
+    vector<pair<int, int>> under_attack;
+    for(int archer_index = 0; archer_index <3; ++archer_index)
+    {
+        pair<int, int> target;
+        int target_distance = INF;
+        for(int enemy_index = 0; enemy_index < temp_enemy.size(); ++enemy_index)
+        {
+            int distance = Distance(N, archer[archer_index], temp_enemy[enemy_index].first,  temp_enemy[enemy_index].second);
+            if(distance <= D)
+            {
+                if((target_distance > distance) || (target_distance == distance && target.second > temp_enemy[enemy_index].second ))
+                {
+                    target = temp_enemy[enemy_index];
+                    target_distance = distance;
+                }
+            }
+        }
+        if(target_distance < INF)
+            under_attack.push_back(target);
+    }
+    for(int index = 0; index < under_attack.size(); ++index)
+    {
+        int row = under_attack[index].first;
+        int col = under_attack[index].second;
+        if(temp_board[row][col] == 1)
+        {
+            temp_board[row][col] = 0;
+            num_of_attack++;
+        }
+    }
+    return num_of_attack;
+}
+
+void ChooseArcherPosition(int col, int num_of_archer)
+{
+    if(num_of_archer == 3)
+    {
+       	temp_enemy = enemy;
+        memcpy(temp_board, board, sizeof(board));
+        int num_of_attack = 0;
+        do{
+            num_of_attack += Attack();
+           	MoveEnemy();
+        }while(!EmptyEnemy());
+        
+        answer = max(answer, num_of_attack);
+        return;
+    }
+    
+    for(int index = col; index < M; ++index)
+    {
+        archer.push_back(index);
+        ChooseArcherPosition(index +1, num_of_archer+1);
+        archer.pop_back();
+    }
+}
+
+int main(int argc, char** argv)
+{
+    answer = 0;
+    enemy.clear();
+    cin >> N >> M >> D;
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col = 0; col < M; ++col)
+        {
+            cin >>board[row][col];
+            if(board[row][col] == 1)
+                enemy.push_back(make_pair(row, col));
+        }
+    }
+
+    ChooseArcherPosition(0,0);
+
+    cout << answer << endl;
+	  return 0;
+}
