@@ -58,7 +58,7 @@ void DFS(int curr_index, int num_of_bracket)
             bracket[index] = false;
             bracket[index+2] = false;
         }
-		    DFS(index+1, num_of_bracket);
+	DFS(index+1, num_of_bracket);
     }
 }
 
