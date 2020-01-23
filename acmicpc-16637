@@ -1,0 +1,79 @@
+#include<iostream>
+#include <vector>
+#include <algorithm>
+#include <cstring>
+
+using namespace std;
+
+const int INF = 987654321;
+
+bool bracket[19];
+string expression;
+int N;
+long long answer;
+
+long long Calculate(long long left_num, string operation, long long right_num)
+{
+    if(operation == "+") return left_num + right_num;
+    if(operation == "-") return left_num - right_num;
+    if(operation == "*") return left_num * right_num;
+}
+
+void DFS(int curr_index, int num_of_bracket)
+{
+    if(curr_index == N)
+    {
+        if(num_of_bracket == 0) return;
+        vector<string> vec;
+        for(int index = 0; index < N; )
+        {
+            if(bracket[index])
+            {
+                string operation = expression[index+1] + string();
+                long long temp_result = Calculate(expression[index]-'0', operation, expression[index+2]-'0');
+                vec.push_back(to_string(temp_result));
+                index += 3;
+            }
+            else
+            {
+                string curr_expression = expression[index] + string();
+                vec.push_back(curr_expression);
+                index++;
+            }
+        }
+        long long number = Calculate(0, "+", stoi(vec[0]));
+        for(int index = 1; index < vec.size(); index+=2)
+            number = Calculate(number, vec[index], stoi(vec[index+1]));
+        answer = max(answer, number);
+        return;
+    }
+    
+    for(int index = curr_index; index < N; index+=2)
+    {
+        if(expression[index] >= '0' && expression[index] <= '9')
+        {
+            bracket[index] = true;
+            bracket[index+2] = true;
+            DFS(index +3, num_of_bracket+1);
+            bracket[index] = false;
+            bracket[index+2] = false;
+        }
+		    DFS(index+1, num_of_bracket);
+    }
+}
+
+int main(int argc, char** argv)
+{
+    cin >> N >> expression;
+    
+    if(N == 1)
+        cout << expression << endl;
+    else
+    {
+        memset(bracket, false, sizeof(bracket));
+        answer = -INF;
+        DFS(0, 0);
+    	cout << answer << endl;
+    }
+	  return 0;
+}
