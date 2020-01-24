@@ -1,0 +1,95 @@
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+const int MAX_SIZE = 11;
+
+long max_value, min_value;
+long number[MAX_SIZE];
+char operators[MAX_SIZE - 1];
+int N;
+
+void Input()
+{
+    max_value = -1000000000;
+    min_value = 1000000000;
+    cin >> N;
+    
+   	for(int num_index = 0; num_index < N; ++num_index)
+        cin >> number[num_index];
+    
+    int op_index = 0;
+    for(int op = 0; op < 4; ++op)
+    {
+        int num_of_op;
+        cin >> num_of_op;
+        if(num_of_op > 0)
+        {
+            for(int index = op_index; index < op_index + num_of_op; ++index)
+            {
+                if(op == 0)
+					operators[index] = '+';          
+                else if(op == 1)
+                    operators[index] = '-';
+                else if(op == 2)
+                	operators[index] = '*';
+                else
+                	operators[index] = '/';
+            }
+            op_index += num_of_op;
+        }
+    }
+}
+
+long Calcurate()
+{
+    long num = number[0];
+    for(int index = 0; index < N-1; ++ index)
+    {
+        if(operators[index] == '+')
+            num += number[index+1];
+		else if(operators[index] == '-')
+			num -= number[index+1];
+        else if(operators[index] == '*')
+			num = num * number[index+1];
+        else
+        	num =  num / number[index+1];
+    }
+    return num;
+}
+
+void Swap(int left_index, int right_index)
+{
+    char temp = operators[left_index];
+    operators[left_index] = operators[right_index];
+    operators[right_index] = temp;
+}
+
+void Permutation(int depth)
+{
+    if(depth == N-1)
+    {
+        long result = Calcurate();
+        max_value = max(max_value, result);
+        min_value = min(min_value, result);
+    }
+    
+    for(int index = depth; index < N-1; ++index)
+    {
+        Swap(depth, index);
+        Permutation(depth + 1);
+        Swap(depth, index);
+    }
+}
+
+int main()
+{
+    Input();
+    Permutation(0);
+    
+    cout<< max_value <<endl;
+    cout << min_value << endl;
+    
+	return 0;
+}
