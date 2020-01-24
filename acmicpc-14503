@@ -1,0 +1,78 @@
+#include <iostream>
+
+using namespace std;
+
+const int MAX_SIZE = 50;
+
+enum{
+    NORTH  = 0,
+    EAST = 1,
+    SOUTH = 2,
+    WEST = 3
+};
+
+enum{
+    NOT_CLEAN = 0,
+    WALL = 1,
+    CLEANED = 2
+};
+
+struct Robot{
+    int row;
+    int col;
+    int direction;
+};
+
+Robot robot;
+int room[MAX_SIZE][MAX_SIZE];
+
+int Dr[4] = {-1, 0, 1, 0};
+int Dc[4] = {0, 1, 0, -1};
+int reverse_direction[4] = {SOUTH, WEST, NORTH, EAST};
+int N, M;
+int num_of_room_cleaned;
+
+void Cleaning()
+{ 
+    for(int check = 1; check <= 4; ++check)
+    {
+        int next_direction = (robot.direction + 3) % 4;
+        int next_row = robot.row + Dr[next_direction];
+        int next_col = robot.col + Dc[next_direction];
+        if(room[next_row][next_col] == NOT_CLEAN)
+        {
+            robot = {next_row, next_col, next_direction};
+            room[robot.row][robot.col] = CLEANED;
+            num_of_room_cleaned++;
+            Cleaning();
+            return;
+        }
+        else
+            robot.direction = next_direction;
+    }
+    
+    int next_row = robot.row + Dr[reverse_direction[robot.direction]];
+    int next_col = robot.col + Dc[reverse_direction[robot.direction]];
+    
+    if(room[next_row][next_col] == WALL) return;
+    
+    robot.row = next_row;
+    robot.col = next_col;
+    Cleaning();
+}
+int main()
+{
+    cin >> N >> M;
+    cin >> robot.row >> robot.col >> robot.direction;
+    
+    for(int row = 0; row < N; ++row)
+        for(int col = 0; col < M; ++col)
+            cin >> room[row][col];
+    
+    room[robot.row][robot.col] = CLEANED;
+    num_of_room_cleaned = 1;
+    Cleaning();
+    
+    cout << num_of_room_cleaned << endl;
+	  return 0;
+}
