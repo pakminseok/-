@@ -1,0 +1,99 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+const int INF = 987654321;
+const int MAX_SIZE = 50;
+const int MAX_NUM_OF_OP = 6;
+
+struct ArrayOperator{
+    int row;
+    int col;
+    int s;
+};
+
+int N, M, K;
+int A[50][50];
+ArrayOperator operations[MAX_NUM_OF_OP];
+bool visit[MAX_NUM_OF_OP];
+int answer;
+
+vector<int> permutation_op;
+
+int Rotate()
+{
+    int temp[50][50];
+    memcpy(temp, A, sizeof(A));
+    for(int k = 0; k < K; ++k)
+    {
+        ArrayOperator curr_op = operations[permutation_op[k]];
+        for(int s = curr_op.s; s >0; --s)
+        {
+            int temp_start = temp[curr_op.row-s][curr_op.col-s];
+            for(int row = curr_op.row-s; row < curr_op.row + s; ++row)
+            	temp[row][curr_op.col-s] = temp[row+1][curr_op.col-s];
+            for(int col = curr_op.col - s; col < curr_op.col +s; ++col)
+                temp[curr_op.row+s][col] = temp[curr_op.row+s][col+1];
+            for(int row = curr_op.row+s; row > curr_op.row - s; --row)
+                temp[row][curr_op.col+s] = temp[row-1][curr_op.col+s];
+            for(int col = curr_op.col + s; col > curr_op.col -s+1; --col)
+                temp[curr_op.row-s][col] = temp[curr_op.row-s][col-1];
+            temp[curr_op.row-s][curr_op.col -s+1] = temp_start;
+        }
+    }
+    int value_of_array = INF;
+    
+    for(int row = 0; row < N; ++row)
+    {
+        int sum_of_row = 0;
+        for(int col = 0; col < M; ++col)
+            sum_of_row += temp[row][col];
+        value_of_array = min(value_of_array, sum_of_row);
+    }
+    return value_of_array;
+}
+
+void Permutation(int cnt)
+{
+    if(cnt == K)
+    {
+        int value_of_array = Rotate();
+        answer = min(answer, value_of_array);
+        return;
+    }
+    for(int k = 0; k < K; ++k)
+    {
+        if(visit[k]) continue;
+        visit[k]= true;
+        permutation_op.push_back(k);
+        Permutation(cnt+1);
+        permutation_op.pop_back();
+        visit[k] = false;
+    }
+}
+
+int main()
+{
+    memset(visit, false, sizeof(visit));
+    answer = INF;
+    
+    cin >> N >> M >> K;
+    
+    for(int row = 0; row < N; ++row)
+        for(int col = 0; col < M; ++col)
+            cin >> A[row][col];
+    
+    for(int op_index = 0; op_index < K; ++op_index)
+    {
+        int row, col, s;
+        cin >> row >> col >> s;
+        operations[op_index] = {row-1, col-1, s};
+    }
+    
+    Permutation(0);
+	  cout << answer << endl;
+    return 0;
+}
