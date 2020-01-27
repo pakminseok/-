@@ -1,0 +1,82 @@
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+const int MAX_NUM_OF_PAPER = 26;
+const int SIZE_OF_PAPER = 10;
+int paper[SIZE_OF_PAPER][SIZE_OF_PAPER];
+int color_paper[5] = {0,0,0,0,0};
+int answer;
+
+bool IsAttach(int curr_row, int curr_col, int size_color_paper)
+{
+    for(int row = curr_row; row < curr_row + size_color_paper; ++row)
+        for(int col = curr_col; col < curr_col + size_color_paper; ++col)
+            if(paper[row][col] == 0)
+                return false;
+    return true;
+}
+void Attach(int curr_row, int curr_col, int size_color_paper)
+{
+    for(int row = curr_row; row < curr_row + size_color_paper; ++row)
+        for(int col = curr_col; col < curr_col + size_color_paper; ++col)
+            paper[row][col] = 0;
+}
+void DisAttach(int curr_row, int curr_col, int size_color_paper)
+{
+    for(int row = curr_row; row < curr_row + size_color_paper; ++row)
+        for(int col = curr_col; col < curr_col + size_color_paper; ++col)
+            paper[row][col] = 1;
+}
+void MakeAttach(int row, int col, int num_of_paper)
+{
+    if(answer < num_of_paper)
+        return;
+    if(col == SIZE_OF_PAPER)
+    {
+        row = row + 1;
+        col = 0;
+    }
+   	if(row >= SIZE_OF_PAPER)
+    {
+        answer = min(answer, num_of_paper);
+        return;
+    }
+    if(paper[row][col] == 0)
+    {
+        MakeAttach(row, col+1, num_of_paper);
+        return;
+    }
+    
+    for(int size_of_color_paper = 5; size_of_color_paper >= 1; --size_of_color_paper)
+    {
+        if(color_paper[size_of_color_paper-1] == 5) continue;
+        if(row + size_of_color_paper > SIZE_OF_PAPER || col + size_of_color_paper > SIZE_OF_PAPER) continue;
+        if(IsAttach(row, col, size_of_color_paper))
+        {
+            Attach(row, col, size_of_color_paper);
+            color_paper[size_of_color_paper-1]++;
+            MakeAttach(row, col+size_of_color_paper, num_of_paper+1);
+            color_paper[size_of_color_paper-1]--;
+            DisAttach(row, col, size_of_color_paper);
+        }
+    }
+}
+
+int main()
+{
+    answer = MAX_NUM_OF_PAPER;
+    
+	  for(int row = 0; row < SIZE_OF_PAPER; ++row)
+        for(int col = 0; col < SIZE_OF_PAPER; ++col)
+            cin >> paper[row][col];
+	
+    MakeAttach(0,0,0);
+    
+    if(answer == MAX_NUM_OF_PAPER)
+        answer = -1;
+    
+    cout << answer << endl;
+    return 0;
+}
