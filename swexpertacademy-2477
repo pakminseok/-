@@ -1,0 +1,121 @@
+#include<iostream>
+#include <algorithm>
+
+using namespace std;
+
+int N, M, K, A, B;
+
+struct Desk{
+    int number;
+    int process_time;
+    int wait_time;
+};
+
+struct Customer{
+    int number;
+    int reception_number;
+    int repair_number;
+    int elapsed_time;
+};
+
+Customer customer[1000];
+Desk reception[9];
+Desk repair_desk[9];
+
+bool Comp(Customer A, Customer B)
+{
+    if(A.elapsed_time == B.elapsed_time)
+        return A.reception_number < B.reception_number;
+        
+    return A.elapsed_time < B.elapsed_time;
+}
+
+int ChooseDesk(Desk* desk, int num_of_desk, int customer_index)
+{
+    int min_wait_time = (customer[customer_index].elapsed_time > desk[0].wait_time) ? customer[customer_index].elapsed_time : desk[0].wait_time;
+    int desk_number = desk[0].number;
+    int temp_wait_time;
+    
+    for(int desk_index = 1; desk_index < num_of_desk; ++desk_index)
+    {
+        temp_wait_time = (customer[customer_index].elapsed_time > desk[desk_index].wait_time) ? customer[customer_index].elapsed_time : desk[desk_index].wait_time;
+        if(temp_wait_time< min_wait_time)
+        {
+            min_wait_time = temp_wait_time;
+            desk_number = desk[desk_index].number;
+        }
+        else if(temp_wait_time == min_wait_time)
+            desk_number = (desk_number < desk[desk_index].number) ? desk_number : desk[desk_index].number;
+    }
+    desk[desk_number-1].wait_time = min_wait_time;
+    return desk_number;
+}
+
+void Solve()
+{
+    for(int customer_index = 0; customer_index < K; ++customer_index)
+    {
+       	int reception_number = ChooseDesk(reception, N, customer_index);
+        
+        customer[customer_index].reception_number = reception_number;
+        customer[customer_index].elapsed_time  = reception[reception_number-1].wait_time + reception[reception_number-1].process_time;   
+        reception[reception_number-1].wait_time += reception[reception_number-1].process_time;
+    }
+    
+    sort(customer, customer + K, Comp);
+   
+    for(int customer_index = 0; customer_index < K; ++customer_index)
+    {
+       	int repair_number = ChooseDesk(repair_desk, M, customer_index);
+        
+        customer[customer_index].repair_number = repair_number;
+        customer[customer_index].elapsed_time  = repair_desk[repair_number-1].wait_time + repair_desk[repair_number-1].process_time;  
+        repair_desk[repair_number-1].wait_time += repair_desk[repair_number-1].process_time;
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+
+	cin>>T;
+	
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+		    cin >> N >> M >> K >> A >> B;
+        for(int reception_index = 0; reception_index < N; ++reception_index)
+        {
+            int process_time;
+            cin >> process_time;
+            reception[reception_index] = {reception_index+1, process_time, 0};
+        }
+        for(int repair_index = 0; repair_index < M; ++repair_index)
+        {
+            int process_time;
+            cin >> process_time;
+            repair_desk[repair_index] = {repair_index+1, process_time, 0};
+        }
+        for(int customer_index = 0; customer_index < K; ++customer_index)
+        {
+            int arrived_time;
+            cin >> arrived_time;
+            customer[customer_index] = {customer_index+1, -1, -1, arrived_time};
+        }
+        
+        Solve();
+        
+        int answer = 0;
+        for(int customer_index = 0; customer_index < K; ++customer_index)
+        {
+            if(customer[customer_index].reception_number == A && customer[customer_index].repair_number == B)
+                answer +=customer[customer_index].number;
+        }
+        
+        if(answer == 0)
+            answer = -1;
+        
+        cout <<"#"<<test_case<<" "<< answer << endl; 
+	}
+	return 0;
+}
