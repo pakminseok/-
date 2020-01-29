@@ -4,8 +4,6 @@ using namespace std;
 
 int D, W, K;
 int film[13][20];
-int temp_film[13][20];
-int choose[13];
 int answer;
 
 bool PassTest()
@@ -16,7 +14,7 @@ bool PassTest()
         for(int row = 0; row < D-1; ++row)
         {
             if(num_of_same >= K) break;
-            if(temp_film[row][col] == temp_film[row+1][col])
+            if(film[row][col] == film[row+1][col])
                 num_of_same++;
             else
                 num_of_same = 1;
@@ -28,57 +26,53 @@ bool PassTest()
     return true;
 }
 
-void MakeChemical()
-{
-    for(int row = 0; row < D; ++row)
-    {
-        for(int col = 0; col < W; ++col)
-        {
-            if(choose[row] == -1)
-                temp_film[row][col] = film[row][col];
-            else
-                temp_film[row][col] = choose[row];
-        }
-    }
-}
-
 void DFS(int row, int num_of_use)
 {
-    if(answer < num_of_use)
-        return;
     if(row == D)
     {
-        MakeChemical();
         if(PassTest())
             answer = (answer > num_of_use) ? num_of_use : answer;
         return;
     }
-
-    choose[row] = -1;
+    
+    if(answer < num_of_use) return;
+    
     DFS(row + 1, num_of_use);
-    choose[row] = 0;
+    
+    int backup[20];
+    
+    for(int col = 0; col < W; ++col)
+    {
+        backup[col] = film[row][col];
+        film[row][col] = 0;
+    }
     DFS(row + 1, num_of_use+1);
-    choose[row] = 1;
-    DFS(row + 1, num_of_use+1);  
+    
+    for(int col = 0; col < W; ++col)
+        film[row][col] = 1; 
+    DFS(row + 1, num_of_use+1);
+    
+    for(int col = 0; col < W; ++col)
+       film[row][col] =backup[col];
 }
 
 int main(int argc, char** argv)
 {
-    int test_case;
-    int T;
-    cin>>T;
+	int test_case;
+	int T;
+	cin>>T;
 
     for(test_case = 1; test_case <= T; ++test_case)
-    {
-          answer = 14;
-          cin >> D >> W >> K;
-          for(int row = 0; row < D; ++row)
-              for(int col = 0; col < W; ++col)
-                  cin >> film[row][col];
-
-          DFS(0, 0);
-
-          cout <<"#"<<test_case<<" "<<answer<<endl;
-    }
-    return 0;
+	{
+        answer = 14;
+        cin >> D >> W >> K;
+        for(int row = 0; row < D; ++row)
+            for(int col = 0; col < W; ++col)
+                cin >> film[row][col];
+        
+		DFS(0, 0);
+        
+        cout <<"#"<<test_case<<" "<<answer<<endl;
+	}
+	return 0;
 }
