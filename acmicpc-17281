@@ -1,0 +1,84 @@
+#include <iostream>
+
+using namespace std;
+
+const int MAX_INNING = 50;
+const int NUM_OF_PLAYER = 9;
+const int HOME_BASE = 16;
+const int BASE_CHECK_BIT = 15;
+
+int N;
+bool choose[NUM_OF_PLAYER];
+int order[NUM_OF_PLAYER];
+int baseball_info[MAX_INNING][NUM_OF_PLAYER];
+int max_point;
+
+void Play()
+{
+    int point = 0;
+    int order_index = 0;
+    
+    for(int inning =0; inning< N; ++inning)
+    {
+        int base = 0;
+        int out_count = 0;
+        while(true)
+        {
+            int hit = baseball_info[inning][order[order_index]];
+            if(hit == 0)
+                out_count++;
+            else
+            {
+                base += 1;
+                for(int move = 1; move <= hit; ++move)
+                {
+                    base = base << 1;
+                    if(base >= HOME_BASE)
+                    {
+                        base = base & BASE_CHECK_BIT;
+                        point++;
+                    }
+                }
+            }
+            
+            order_index = (order_index + 1) % NUM_OF_PLAYER;
+            if(out_count == 3) break;
+        }
+    }
+    max_point = (max_point < point) ? point : max_point;
+}
+
+void MakeOrder(int player_index)
+{
+    if(player_index == NUM_OF_PLAYER)
+    {
+       	Play();
+        return;
+    }
+
+    for(int order_index = 0; order_index < 9; ++order_index)
+    {
+        if(choose[order_index]) continue;      
+        choose[order_index] = true;
+        order[order_index] = player_index;
+        MakeOrder(player_index+1);
+        choose[order_index] = false;
+    }
+}
+
+int main()
+{
+    max_point = 0;
+    cin >> N;
+    for(int inning = 0; inning < N; ++inning)
+        for(int player_index = 0; player_index < 9; ++player_index)
+            cin >> baseball_info[inning][player_index];
+
+    order[3] = 0;
+    choose[3] = true;
+    MakeOrder(1);
+
+    cout << max_point << endl;
+    
+    return 0;
+}
