@@ -1,0 +1,107 @@
+#include <iostream>
+#include <cstring>
+#include <queue>
+
+using namespace std;
+
+const int INF = 987654321;
+const int MAX_SIZE = 50;
+
+int min_time;
+int R, C;
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, 1, -1};
+char forest[MAX_SIZE][MAX_SIZE+1];
+char next_forest[MAX_SIZE][MAX_SIZE+1];
+int visit_time[MAX_SIZE][MAX_SIZE];
+
+void Move(int start_row, int start_col)
+{
+    queue<pair<int, int>> hedgehog;
+    hedgehog.push(make_pair(start_row, start_col));
+    
+    while(!hedgehog.empty())
+    {
+        memcpy(next_forest, forest, sizeof(forest));
+        for(int row = 0; row < R; ++row)
+        {
+            for(int col = 0; col < C; ++col)
+            {
+                if(forest[row][col] == '*')
+                {
+                    for(int direction = 0; direction < 4; ++direction)
+                    {
+                        int next_row = row + Dr[direction];
+                        int next_col = col + Dc[direction];
+
+                        if(next_row >= 0 && next_row <= R-1 && next_col >=0 && next_col <= C-1)
+                        {
+                            if(forest[next_row][next_col] == '.' )
+                                next_forest[next_row][next_col] = '*';
+                        }
+                    }
+                }
+            }
+        }
+        memcpy(forest, next_forest, sizeof(next_forest));
+        
+        int num_of_hedgehog = hedgehog.size();
+        for(int index = 0; index < num_of_hedgehog; ++index)
+        {
+            int hedgehog_row = hedgehog.front().first;
+            int hedgehog_col = hedgehog.front().second;
+            hedgehog.pop();
+
+            if(forest[hedgehog_row][hedgehog_col] == 'D')
+            {
+                min_time = visit_time[hedgehog_row][hedgehog_col] -1;
+                return;
+            }
+
+            for(int direction = 0; direction < 4; ++direction)
+            {
+                int next_row = hedgehog_row + Dr[direction];
+                int next_col = hedgehog_col + Dc[direction];
+
+                if(next_row >= 0 && next_row <= R-1 && next_col >=0 && next_col <= C-1)
+                {
+                    if((forest[next_row][next_col] == '.' ||  forest[next_row][next_col] == 'D') && visit_time[next_row][next_col] == 0)
+                    {
+                        visit_time[next_row][next_col] = visit_time[hedgehog_row][hedgehog_col] + 1;
+                        hedgehog.push(make_pair(next_row, next_col));
+                    }
+                }
+            }
+        }
+    }
+}
+int main()
+{
+    min_time = INF;
+    int hedgehog_row, hedgehog_col;
+    memset(visit_time, 0, sizeof(visit_time));
+    cin >> R >> C;
+
+    for(int row = 0; row < R; ++row)
+    {
+        for(int col = 0; col < C; ++col)
+        {
+            cin >> forest[row][col];
+
+            if(forest[row][col] == 'S')
+            {
+                hedgehog_row = row;
+                hedgehog_col = col;
+            }
+        }
+    }
+
+    visit_time[hedgehog_row][hedgehog_col] = 1;
+    Move(hedgehog_row, hedgehog_col);
+
+    if(min_time == INF)
+        cout << "KAKTUS" << endl;
+    else
+        cout << min_time << endl;
+    return 0;
+}
