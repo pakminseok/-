@@ -1,0 +1,126 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Chess{
+    int row;
+    int col;
+    int direction;
+};
+int N, K;
+int board[12][12];
+vector<int> chess_group[12][12];
+vector<int> move_group;
+Chess chess[10];
+
+int Dr[4] = {0, 0, -1, 1};
+int Dc[4] = {1, -1, 0, 0};
+int reverse_direction[4] = {1, 0, 3, 2};
+
+void MakeGroup(int chess_number, int row, int col)
+{
+    while(!chess_group[row][col].empty())
+    {
+        if(chess_group[row][col].back() == chess_number)
+        {
+            move_group.push_back(chess_number);
+            chess_group[row][col].pop_back();
+            break;
+        }
+        else
+        {
+            move_group.push_back(chess_group[row][col].back());
+            chess_group[row][col].pop_back();
+        }
+    }
+}
+
+void Move(int chess_number, int color)
+{
+    if(color != 2)
+    {
+        MakeGroup(chess_number, chess[chess_number].row, chess[chess_number].col);
+        chess[chess_number].row += Dr[chess[chess_number].direction];
+        chess[chess_number].col += Dc[chess[chess_number].direction];
+        
+        if(color == 1)
+            reverse(move_group.begin(), move_group.end());
+        
+        while(!move_group.empty())
+        {
+            int child_chess_number = move_group.back();
+            chess_group[chess[chess_number].row][chess[chess_number].col].push_back(child_chess_number);
+            move_group.pop_back();
+            chess[child_chess_number].row = chess[chess_number].row;
+            chess[child_chess_number].col = chess[chess_number].col;
+        }
+    }
+    else
+    {
+        int next_row = chess[chess_number].row + Dr[reverse_direction[chess[chess_number].direction]];
+        int next_col = chess[chess_number].col + Dc[reverse_direction[chess[chess_number].direction]];
+        
+        if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > N-1)
+            chess[chess_number].direction = reverse_direction[chess[chess_number].direction];
+        else
+        {
+            chess[chess_number].direction = reverse_direction[chess[chess_number].direction];
+            if(board[next_row][next_col] != 2)
+                Move(chess_number, board[next_row][next_col]);
+        }
+    }
+}
+
+void Solve()
+{
+    bool game_end = false;
+    int turn = 1;
+    while(turn <= 1000)
+    {
+        for(int chess_number = 0; chess_number < K; ++chess_number)
+        {
+            int next_row = chess[chess_number].row + Dr[chess[chess_number].direction];
+            int next_col = chess[chess_number].col + Dc[chess[chess_number].direction];
+            
+            if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > N-1)
+                Move(chess_number, 2);
+            else
+                Move(chess_number, board[next_row][next_col]);
+            if(chess_group[chess[chess_number].row][chess[chess_number].col].size() >= 4)
+            {
+                game_end = true;
+                break;
+            }
+        }
+        
+        if(game_end)
+            break;
+        
+        turn++;
+    }
+    
+    if(!game_end)
+        cout << -1 << endl;
+    else
+        cout << turn << endl;
+}
+
+int main()
+{
+    cin >> N >> K;
+    for(int row = 0; row < N; ++row)
+        for(int col = 0; col < N; ++col)
+            cin >> board[row][col];
+    for(int chess_number = 0; chess_number < K; ++chess_number)
+    {
+        int row, col, direction;
+        cin >> row >> col >> direction;
+        chess[chess_number] = {row-1, col-1, direction-1};
+        chess_group[row-1][col-1].push_back(chess_number);
+    }
+
+    Solve();
+	  return 0;
+}
