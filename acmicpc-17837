@@ -122,5 +122,5 @@ int main()
     }
 
     Solve();
-	  return 0;
+    return 0;
 }
