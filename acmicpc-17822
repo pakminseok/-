@@ -1,0 +1,190 @@
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+const int NONE = 2000;
+
+struct Instruction{
+    int x;
+    int d;
+    int k;
+};
+
+int N, M, T;
+int circle[51][50];
+bool near_match[51][50];
+Instruction instruction[50];
+
+void Adjust()
+{
+    int sum = 0;
+    int num_of_number = 0;
+    
+    for(int i = 1; i <= N; ++i)
+    {
+        for(int j =0; j < M; ++j)
+        {
+            if(circle[i][j] == NONE) continue;
+            sum +=circle[i][j];
+            num_of_number++;
+        }
+    }
+    
+    if(num_of_number == 0) return;
+    
+    for(int i = 1; i <= N; ++i)
+    {
+        for(int j =0; j < M; ++j)
+        {
+            if(circle[i][j] == NONE) continue;
+            
+            if(circle[i][j] * num_of_number > sum)
+                circle[i][j] = circle[i][j] - 1;
+            else if(circle[i][j] * num_of_number < sum)
+                circle[i][j] = circle[i][j] + 1;
+        }
+    }
+}
+
+void Erase()
+{
+    for(int i = 1; i <= N; ++i)
+        for(int j = 0; j < M; ++j)
+            if(near_match[i][j])
+                circle[i][j] = NONE;
+}
+
+bool Match()
+{
+    bool match = false;
+    for(int i = 1; i <= N; ++i)
+    {
+        if(circle[i][0] != NONE && circle[i][M-1] != NONE)
+        {
+            if(circle[i][0] == circle[i][M-1])
+            {
+                near_match[i][0] = true;
+                near_match[i][M-1] = true;
+                match = true;
+            }
+        }
+        
+        for(int j = 1; j <= M-2; ++j)
+        {
+            if(circle[i][j] == NONE) continue;
+            if(circle[i][j] == circle[i][j-1])
+            {
+                near_match[i][j] = true;
+                near_match[i][j-1] = true;
+                match = true;
+            }
+            if(circle[i][j] == circle[i][j+1])
+            {
+                near_match[i][j] = true;
+                near_match[i][j+1] = true;
+                match = true;
+            }
+        }    
+    }
+    for(int j = 0; j <= M-1; ++j)
+    {
+        if(circle[1][j] != NONE)
+        {
+            if(circle[1][j] == circle[2][j])
+            {
+                near_match[1][j] = true;
+                near_match[2][j] = true;
+                match = true;
+            }
+        }
+    }
+    for(int i = 2; i <= N-1; ++i)
+    {
+        for(int j = 0; j <= M-1; ++j)
+        {
+            if(circle[i][j] == NONE) continue;
+            if(circle[i][j] == circle[i-1][j])
+            {
+                near_match[i][j] = true;
+                near_match[i-1][j] = true;
+                match = true;
+            }
+            if(circle[i][j] == circle[i+1][j])
+            {
+                near_match[i][j] = true;
+                near_match[i+1][j] = true;
+                match = true;
+            }
+        }
+    }
+    return match;
+}
+
+void Rotate(int circle_number, int d, int k)
+{
+    int temp[50];
+    for(int j = 0; j < M; ++j)
+        temp[j] = circle[circle_number][j];
+    
+    if(d == 0)
+    {
+        for(int j = 0; j < M; ++j)
+        {
+            int position = (j+k)%M;
+            circle[circle_number][position] = temp[j];
+        }
+    }
+    else
+    {
+        for(int j = 0; j < M; ++j)
+        {
+            int position = ( j-k < 0) ? M+j-k : j-k;
+            circle[circle_number][position] = temp[j];
+        }
+    }
+}
+
+void Solve()
+{
+    int answer = 0;
+    for(int t = 0; t < T; ++t)
+    {
+        int target = instruction[t].x;
+        memset(near_match, false, sizeof(near_match));
+        for(int circle_number = target; circle_number<= N; circle_number+=target)
+        {
+            Rotate(circle_number, instruction[t].d, instruction[t].k);
+        }
+      
+        if(Match())
+            Erase();
+        else
+            Adjust();
+    }
+    for(int i = 1; i <= N; ++i)
+    {
+        for(int j =0; j < M; ++j)
+        {
+            if(circle[i][j] == NONE) continue;
+            answer +=circle[i][j];
+        }
+    }
+    cout << answer << endl;
+}
+
+int main()
+{
+    cin >> N >> M >> T;
+    for(int i = 1; i <= N; ++i)
+        for(int j = 0; j < M; ++j)
+            cin >> circle[i][j];
+    for(int t = 0; t < T; ++t)
+    {
+        int x, d, k;
+        cin >> x >> d >> k;
+        instruction[t] = {x, d, k};
+    }
+    Solve();
+	  return 0;
+}
