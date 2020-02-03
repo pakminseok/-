@@ -1,0 +1,118 @@
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+struct Piece {
+	bool finish;
+	int board_type;
+	int position;
+};
+
+int board[4][26] = {
+	{0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 0, 0, 0, 0, 0},
+	{10, 13, 16, 19, 25, 30, 35, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{20, 22, 24, 25, 30, 35, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{30, 28, 27, 26, 25, 30, 35, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+};
+int board_size[4] = { 21, 8, 7, 8 };
+bool piece_on[4][21];
+int dice[10];
+Piece piece[4];
+int sum[4];
+int max_point;
+
+Piece Move(int piece_index, int dice_number)
+{
+	int board_type = piece[piece_index].board_type;
+	int next_position = piece[piece_index].position + dice_number;
+	if (next_position >= board_size[board_type])
+		return { true, board_type, next_position };
+
+	if (board_type == 0)
+	{
+		if (board[board_type][next_position] == 10 || board[board_type][next_position] == 20 || board[board_type][next_position] == 30)
+		{
+			board_type = board[board_type][next_position] / 10;
+			next_position = 0;
+		}
+	}
+    else
+    {
+        if (board[board_type][next_position] == 40)
+        {
+            board_type=0;
+            next_position = 20;
+        }
+        else if (board[board_type][next_position] == 25)
+        {
+            board_type=1;
+            next_position = 4;
+        }
+        else if (board[board_type][next_position] == 30)
+        {
+            board_type=1;
+            next_position = 5;
+        }
+        else if (board[board_type][next_position] == 35)
+        {
+            board_type=1;
+            next_position = 6;
+        }
+        
+    }
+	return { false, board_type, next_position };
+}
+
+void DFS(int dice_index)
+{
+	if (dice_index == 10)
+	{
+		int point = 0;
+		for (int piece_index = 0; piece_index < 4; ++piece_index)
+			point += sum[piece_index];
+		max_point = (max_point < point) ? point : max_point;
+		return;
+	}
+
+	for (int piece_index = 0; piece_index < 4; ++piece_index)
+	{
+		if (!piece[piece_index].finish)
+		{
+			Piece after = Move(piece_index, dice[dice_index]);
+			Piece before = piece[piece_index];
+
+			if (!after.finish && piece_on[after.board_type][after.position])
+				continue;
+			piece_on[before.board_type][before.position] = false;
+			piece_on[after.board_type][after.position] = true;
+			sum[piece_index] += board[after.board_type][after.position];
+			piece[piece_index] = after;
+			DFS(dice_index + 1);
+			piece[piece_index] = before;
+			sum[piece_index] -= board[after.board_type][after.position];
+			piece_on[after.board_type][after.position] = false;
+			piece_on[before.board_type][before.position] = true;
+		}
+	}
+}
+
+int main()
+{
+	max_point = 0;
+	for (int piece_index = 0; piece_index < 4; piece_index++)
+	{
+		piece[piece_index] = { false, 0, 0 };
+		sum[piece_index] = 0;
+	}
+
+	memset(piece_on, false, sizeof(piece_on));
+
+	for (int dice_index = 0; dice_index < 10; ++dice_index)
+		cin >> dice[dice_index];
+
+	DFS(0);
+	cout << max_point << endl;
+
+	return 0;
+}
