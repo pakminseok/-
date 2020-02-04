@@ -1,0 +1,56 @@
+#include<iostream>
+
+using namespace std;
+
+const int INF = 987654321;
+
+int number[12];
+int operations[4];
+int N;
+int max_result;
+int min_result;
+
+void DFS(int number_index, int sum, int minus, int mul, int div, int result)
+{
+    if(number_index == N)
+    {
+        max_result = (max_result < result) ? result : max_result;
+        min_result = (min_result > result) ? result : min_result;
+        return;
+    }
+    
+    if(sum < operations[0])
+        DFS(number_index +1, sum + 1, minus, mul, div, result + number[number_index]);
+    if(minus < operations[1])
+        DFS(number_index +1, sum, minus+1, mul, div, result - number[number_index]);
+    if(mul < operations[2])
+        DFS(number_index +1, sum, minus, mul+1, div, result * number[number_index]);
+    if(div < operations[3])
+        DFS(number_index +1, sum, minus, mul, div+1, result / number[number_index]);
+}
+
+int main(int argc, char** argv)
+{
+	int T;
+	cin>>T;
+	
+	for(int test_case = 1; test_case <= T; ++test_case)
+	{
+        max_result =  -INF;
+        min_result = INF;
+        
+        cin >> N;
+        
+		    for(int op_index = 0; op_index < 4; ++op_index)
+            cin >> operations[op_index];
+        for(int number_index = 0; number_index < N; ++number_index)
+            cin >> number[number_index];
+	
+		    DFS(1,0,0,0,0,number[0]);
+
+        int answer = max_result - min_result;
+        
+        cout << "#"<<test_case<<" " << answer << endl;
+	}
+	return 0;
+}
