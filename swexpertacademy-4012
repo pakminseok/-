@@ -1,0 +1,69 @@
+#include<iostream>
+
+using namespace std;
+
+const int INF = 987654321;
+
+int synergy[16][16];
+int N;
+int A[8], B[8];
+bool is_A[16] = {false};
+int min_result;
+
+void Split(int food_index, int num_of_select)
+{
+    if(num_of_select == N/2)
+    {
+        int num_of_A = 0;
+        int num_of_B = 0;
+        for(int index = 0; index < N; ++index)
+        {
+            if( is_A[index] )
+            	A[num_of_A++] = index;
+            else
+              B[num_of_B++] = index;
+        }
+        int sum_A=0;
+        int sum_B =0;
+        for(int i = 0; i < num_of_A; ++i)
+        {
+            for(int j = 0; j < num_of_B; ++j)
+            {
+                sum_A += synergy[A[i]][A[j]];
+                sum_B += synergy[B[i]][B[j]];
+            }
+        }
+        int result = (sum_A >= sum_B) ? sum_A - sum_B : sum_B - sum_A;
+        min_result = (min_result > result) ? result : min_result;
+        return;
+    }
+   
+    for(int index = food_index; index < N; ++index)
+    {
+        is_A[index] = true;
+        Split(index + 1, num_of_select +1);
+        is_A[index] = false;
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	
+	cin>>T;
+
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        min_result = INF;
+		    cin >> N;
+        for(int row = 0; row < N; ++row)
+            for(int col = 0; col < N; ++col)
+                cin >> synergy[row][col];
+	
+        Split(0, 0);
+        
+        cout<<"#"<<test_case<<" " << min_result<<endl;
+	}
+	return 0;
+}
