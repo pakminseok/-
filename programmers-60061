@@ -9,6 +9,123 @@ const int DELETE = 0;
 const int GI = 0;
 const int BO = 1;
 
+bool land[101][101][101][101];
+
+bool Comp(vector<int> A, vector<int> B)
+{
+    if(A[0] == B[0])
+    {
+        if(A[1] == B[1])
+            return A[2] < B[2];
+        return A[1] < B[1];
+    }
+    return A[0] < B[0];
+}
+
+void Work(vector<int> build_frame)
+{
+    int x = build_frame[0];
+    int y = build_frame[1];
+    
+    if(build_frame[2] == GI)
+        land[x][y][x][y+1] = (build_frame[3] == BUILD) ? true : false;
+    else
+        land[x][y][x+1][y] = (build_frame[3] == BUILD) ? true : false;
+}
+
+bool Check(vector<int> build_frame, const int n)
+{
+    bool check = false;
+    int x = build_frame[0];
+    int y = build_frame[1];
+    
+    if( x < 0 || x > n || y < 0 || y > n)
+        return false;
+    if(build_frame[2] == GI && y+1 <= n)
+    {
+        if(build_frame[3] == BUILD)
+        {
+            if(y == 0)
+                check = true;
+            else if(x+1 <= n && land[x][y][x+1][y])
+                check = true;
+            else if(x-1 >= 0 && land[x-1][y][x][y])
+                check = true;
+            else if( y-1 >= 0 && land[x][y-1][x][y] )
+                check = true;
+        }
+        else
+        {
+            check = true;
+            land[x][y][x][y+1] = false;
+            if(y+2 <= n && land[x][y+1][x][y+2] && Check({x, y+1, GI, BUILD}, n) != true)
+                check = false;
+            if(x-1 >=0 && land[x-1][y+1][x][y+1] && Check({x-1, y+1, BO, BUILD}, n) != true)
+                check = false;
+            if(x+1 <= n && land[x][y+1][x+1][y+1] && Check({x, y+1, BO, BUILD}, n) != true)
+                check = false;
+            land[x][y][x][y+1] = true;
+        }
+    }
+    else if(build_frame[2] == BO && x+1<= n && y != 0)
+    {
+        if(build_frame[3] == BUILD)
+        {
+            if(y-1 >= 0 && land[x][y-1][x][y])
+                check = true;
+            else if(y-1 >= 0 && land[x+1][y-1][x+1][y])
+                check = true;
+            else if(x-1 >=0 && x+2 <= n && land[x-1][y][x][y]&&land[x+1][y][x+2][y])
+                check = true;
+        }
+        else
+        {
+            check = true;
+            land[x][y][x+1][y] = false;
+            if(y+1 <= n && land[x][y][x][y+1] && Check({x, y, GI, BUILD}, n) != true )
+                check = false;
+            if(y+1 <=n && land[x+1][y][x+1][y+1] && Check({x+1, y, GI, BUILD}, n) != true)
+               check = false;
+            if(x-1>=0 && land[x-1][y][x][y] && Check({x-1, y, BO, BUILD}, n) != true )
+                check = false;
+            if(x+2 <= n && land[x+1][y][x+2][y] && Check({x+1, y, BO, BUILD}, n) != true)
+                check = false;
+            land[x][y][x+1][y] =  true;
+        }
+    }
+    return check;
+}
+
+vector<vector<int>> solution(int n, vector<vector<int>> build_frame) {
+    vector<vector<int>> answer;
+    for(int work = 0; work < build_frame.size(); ++work)
+    {
+        if(Check(build_frame[work], n))
+        {
+            Work(build_frame[work]);
+            vector<int> frame = {build_frame[work][0], build_frame[work][1], build_frame[work][2]};
+            
+            if(build_frame[work][3] == BUILD)
+                answer.push_back(frame);
+            else
+                answer.erase(find(answer.begin(), answer.end(), frame));
+        }
+    }
+    sort(answer.begin(), answer.end(), Comp);
+    return answer;
+}
+-----------------------------------
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+const int BUILD = 1;
+const int DELETE = 0;
+const int GI = 0;
+const int BO = 1;
+
 vector<vector<int>> answer;
 
 bool Comp(vector<int> A, vector<int> B)
