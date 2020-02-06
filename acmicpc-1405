@@ -1,0 +1,47 @@
+#include <iostream>
+
+using namespace std;
+
+double probability[4];
+int Dr[4] = {0, 0, 1, -1};
+int Dc[4] = {1, -1, 0, 0};
+bool visit[29][29] = {false};
+double answer;
+int N;
+
+void Move(int row, int col, double prob, int num_of_move)
+{
+    if(num_of_move == N)
+    {
+        answer +=prob;
+        return;
+    }
+    for(int direction = 0; direction < 4; ++direction)
+    {
+        if(probability[direction] == 0.0) continue;
+        int next_row = row + Dr[direction];
+        int next_col = col + Dc[direction]; 
+        if(visit[next_row][next_col]) continue;
+        visit[next_row][next_col] = true;
+        double next_probability = prob * probability[direction];
+        Move(next_row, next_col, next_probability, num_of_move+1);
+        visit[next_row][next_col] = false;
+    }
+}
+
+int main()
+{
+    answer = 0.0;
+    cin >> N;
+    for(int direction = 0; direction < 4; ++direction)
+    {
+        cin >> probability[direction];
+        probability[direction] = probability[direction] * 0.01;
+    }
+
+    visit[14][14] = true;
+    Move(14, 14, 1.0, 0);
+    cout.precision(10);
+    cout << answer << endl;
+	  return 0;
+}
