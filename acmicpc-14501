@@ -36,3 +36,38 @@ int main()
     cout << max_payment << endl;
 	  return 0;
 }
+
+---------------------------
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+const int MAX_DAY = 16;
+
+int main()
+{
+    int max_payment = 0;
+	
+    int N;
+	cin >> N;
+    
+    int cost_time[MAX_DAY + 1];
+    int payment[MAX_DAY + 1];
+    int total_payment[MAX_DAY + 1] = {0};
+    int answer = 0;
+    
+    for(int day = 1; day <= N; ++day)
+        cin >> cost_time[day] >> payment[day];
+ 
+    for(int curr_day = 1; curr_day <= N+1; ++curr_day)
+    {
+        for(int before_day = 1; before_day < curr_day; ++before_day)
+        {
+            if(curr_day - before_day >= cost_time[before_day])
+            	total_payment[curr_day] = max(total_payment[before_day] + payment[before_day], total_payment[curr_day]);
+        }
+    }
+    cout << total_payment[N+1] << endl;
+    return 0;
+}
