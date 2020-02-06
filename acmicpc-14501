@@ -1,0 +1,38 @@
+#include <iostream>
+
+using namespace std;
+
+const int MAX_DAY = 15;
+int N;
+int cost_time[MAX_DAY];
+int payment[MAX_DAY];
+int max_payment;
+
+void DFS(int curr_day, int total_payment, int before_day)
+{
+    if(curr_day >= N)
+    {
+        if(curr_day > N)
+          total_payment -= payment[before_day];
+        max_payment = (max_payment < total_payment) ? total_payment : max_payment;
+        return;
+    }
+    
+    for(int day = curr_day; day < N; ++day)
+    {
+        DFS(day + cost_time[day], total_payment + payment[day], day);
+    }
+}
+
+int main()
+{
+    max_payment = 0;
+	  cin >> N;
+    for(int day = 0; day < N; ++day)
+        cin >> cost_time[day] >> payment[day];
+    
+    DFS(0, 0, 0);
+    
+    cout << max_payment << endl;
+	  return 0;
+}
