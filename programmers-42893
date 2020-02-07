@@ -1,0 +1,90 @@
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
+struct Page{
+    string url;
+    vector<string> links;
+};
+
+string GetURL(string page)
+{
+    int start_index = page.find("<meta property=\"og:url\" content=\"") + 33;
+    int end_index = page.find("\"",start_index);
+    return page.substr(start_index, end_index-start_index);
+}
+
+int GetBasePoint(string page, string word)
+{
+    int base_point = 0;
+    int word_size = word.length();
+    int find_index = page.find(word,0);
+    while(find_index != string::npos)
+    {
+        if((page[find_index-1] < 'a' || page[find_index-1] > 'z') && (page[find_index+word_size] < 'a' || page[find_index+word_size] > 'z'))
+            base_point++;
+        find_index = page.find(word,find_index+word_size);
+    }
+    return base_point;
+        
+}
+
+vector<string> GetHyperLink(string page)
+{
+    vector<string> links;
+        
+    int start_index = page.find("<a href=\"", page.find("<body>"));
+
+    while(start_index != string::npos)
+    {
+        int end_index = page.find("\">",start_index+9);
+        string link_url = page.substr(start_index+9, end_index-(start_index+9));
+        start_index = page.find("<a href=\"", end_index);
+        links.push_back(link_url);
+    }
+    return links;
+}
+
+int solution(string word, vector<string> pages) {
+    int answer = 0;
+    transform(word.begin(), word.end(), word.begin(), ::tolower);
+    
+    map<string, int> base_points;
+    map<string, double> link_point;
+    map<string, double> match_point;
+    vector<Page> Pages;
+    
+    for(int index = 0; index < pages.size(); ++index)
+    {  
+        transform(pages[index].begin(), pages[index].end(), pages[index].begin(), ::tolower);
+        
+        string url = GetURL(pages[index]);
+        int base_point = GetBasePoint(pages[index], word);
+        vector<string> links = GetHyperLink(pages[index]);
+        
+        base_points[url] = base_point;
+        link_point[url] = (double)base_point / (double)links.size();
+        match_point[url] = (double)base_point;  
+        
+        Pages.push_back({url, links});
+    }
+    
+    for(int index = 0; index < Pages.size(); ++index)
+    {
+        for(int link_index =0; link_index < Pages[index].links.size(); ++link_index)
+        {
+           match_point[Pages[index].links[link_index]]+=link_point[Pages[index].url];
+        }
+    }
+    
+    for(int index = 0; index < Pages.size(); ++index)
+    {
+        if(match_point[Pages[answer].url] < match_point[Pages[index].url])
+            answer = index;
+    }
+
+    return answer;
+}
