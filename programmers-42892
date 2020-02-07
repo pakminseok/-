@@ -1,0 +1,80 @@
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+vector<int> pre, post;
+
+struct Node{
+    int x,y,index;
+    Node* left;
+    Node* right;
+};
+
+void preorder(Node *root)
+{
+    if(root == NULL)
+        return;
+    pre.push_back(root->index);
+    preorder(root->left);
+    preorder(root->right);
+}
+void postorder(Node *root)
+{
+    if(root == NULL)
+        return;
+    postorder(root->left);
+    postorder(root->right);
+    post.push_back(root->index);
+}
+
+bool comp(Node a, Node b)
+{
+    if(a.y == b.y)
+        return a.x < b.x;
+    return a.y > b.y;
+}
+
+void addNode(Node *parent, Node *child)
+{
+    if(child->x < parent -> x)
+    {
+        if(parent->left == NULL)
+            parent -> left = child;
+        else
+            addNode(parent->left, child);
+    }
+    else
+    {
+        if(parent->right == NULL)
+            parent -> right = child;
+        else
+            addNode(parent->right, child);
+    }
+        
+}
+vector<vector<int>> solution(vector<vector<int>> nodeinfo) {
+    vector<vector<int>> answer;
+    int sz= nodeinfo.size();
+    vector<Node> node;
+        
+    for(int i=0; i<sz; ++i)
+    {
+        node.push_back({nodeinfo[i][0], nodeinfo[i][1], i+1});
+    }
+    
+    sort(node.begin(), node.end(), comp);
+    
+    for(int i=1; i<sz; ++i)
+    {
+        addNode(&node[0], &node[i]);
+    }
+    preorder(&node[0]);
+    postorder(&node[0]);
+    
+    answer.push_back(pre);
+    answer.push_back(post);
+    
+    return answer;
+}
