@@ -1,0 +1,33 @@
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+bool comp(pair<int, int> a, pair<int, int> b)
+{
+    return a.second < b.second;
+}
+int solution(vector<int> food_times, long long k) {
+    int answer = 0;
+    vector<pair<int, int>> ftimes; //(food_time, index)
+    for(int i = 0; i<food_times.size(); i++)
+    {
+        ftimes.push_back(make_pair(food_times[i], i+1));
+    }
+
+    sort(ftimes.begin(), ftimes.end());
+    int K = 0;
+    int foodcnt = food_times.size();
+    int index =0;
+    while(K <= k && index < foodcnt-1)
+    {   
+        if(ftimes[index+1].first - ftimes[index].first >= 0)
+        {
+            K += (foodcnt-index);
+            index++;
+        }
+    }
+    sort(ftimes.begin()+index-1, ftimes.end(), comp);
+    answer = ftimes[index-1].second;
+    return answer;
+}
