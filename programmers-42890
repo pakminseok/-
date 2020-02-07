@@ -1,0 +1,88 @@
+#include <string>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+vector<vector<int>> candidate_key;
+vector<int> candidate;
+
+bool Comp(vector<int> A, vector<int> B)
+{
+    if(A.size() == B.size())
+    {
+        for(int index = 0; index < A.size(); ++index)
+        {
+            if(A[index] != B[index])
+                return A[index] > B[index];
+        }
+    }
+    return A.size() > B.size();
+}
+
+int MakeNum(vector<int> A)
+{
+    int number = 0;
+    for(int index = 0; index < A.size(); ++index)
+    {
+        number += (1 << A[index]);
+    }
+    return number;
+}
+
+bool CheckUnique(const vector<vector<string>>& relation)
+{
+    for(int row = 0; row < relation.size(); ++row)
+    {
+        for(int compare_row = row +1; compare_row < relation.size(); ++compare_row)
+        {
+            bool is_unique = false;
+            for(int key_index = 0; key_index < candidate.size(); ++key_index)
+            {
+                if(relation[row][candidate[key_index]] != relation[compare_row][candidate[key_index]])
+                    is_unique = true;
+            }
+            if(!is_unique)
+                return false;
+        }
+    }
+    return true;
+}
+
+void MakeCandidate(int column_index, int column_size, const vector<vector<string>>& relation)
+{
+    if(column_index == column_size)
+    {
+        if(!candidate.empty() && CheckUnique(relation))
+            candidate_key.push_back(candidate);
+        
+        return;
+    }
+    
+    MakeCandidate(column_index+1, column_size, relation);
+    candidate.push_back(column_index);
+    MakeCandidate(column_index+1, column_size, relation);
+    candidate.pop_back();
+}
+
+int solution(vector<vector<string>> relation) {
+    int column_size = relation[0].size();
+    MakeCandidate(0, column_size, relation);
+    
+    sort(candidate_key.begin(), candidate_key.end(), Comp);
+    int answer = 0;
+    while(!candidate_key.empty())
+    {
+        int key = MakeNum(candidate_key.back());
+        candidate_key.pop_back();
+        answer++;
+        for(vector<vector<int>>::iterator it = candidate_key.begin(); it != candidate_key.end();)
+        {
+            if((key & MakeNum(*it)) == key)
+                it = candidate_key.erase(it);
+            else
+                ++it;
+        }
+    }
+    
+    return answer;
+}
