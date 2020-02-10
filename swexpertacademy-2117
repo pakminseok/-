@@ -1,0 +1,79 @@
+#include<iostream>
+#include<queue>
+#include <algorithm>
+
+using namespace std;
+
+const int MAX_CITY_SIZE = 20;
+
+int home[MAX_CITY_SIZE][MAX_CITY_SIZE];
+int N, M;
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+int answer;
+
+void Solve(int start_row, int start_col)
+{
+    int num_of_home = (home[start_row][start_col] == 1) ? 1 : 0;
+	  int K = 1;
+    bool visit[MAX_CITY_SIZE][MAX_CITY_SIZE] = {false};
+    
+    queue<pair<int, int>> cover_range;
+    cover_range.push(make_pair(start_row, start_col));
+  	visit[start_row][start_col] = true;
+    
+    while(!cover_range.empty())
+    {
+        int q_size = cover_range.size();
+        
+        if(M*num_of_home - ((K*K) + (K-1)*(K-1)) >= 0)
+            answer = max(answer, num_of_home);
+        if(K > MAX_CITY_SIZE) return;
+        
+        while(q_size-- > 0)
+        {
+            int row = cover_range.front().first;
+            int col = cover_range.front().second;
+            cover_range.pop();
+            for(int direction = 0; direction < 4; ++direction)
+            {
+                int next_row = row + Dr[direction];
+                int next_col = col + Dc[direction];
+
+                if(next_row < 0 || next_row> N-1 || next_col < 0 || next_col > N-1) continue;
+                if(visit[next_row][next_col]) continue;
+
+                visit[next_row][next_col] = true;
+                cover_range.push(make_pair(next_row, next_col));
+                if(home[next_row][next_col] == 1)
+                    num_of_home++;
+            }
+        }
+        K++;
+    }
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	
+	cin>>T;
+	
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+		cin >> N >> M;
+		for(int row = 0; row < N; ++row)
+        for(int col = 0; col < N; ++col)
+            cin >> home[row][col];
+		
+    answer = 0;;
+        
+		for(int row = 0; row < N; ++row)
+        for(int col = 0; col < N; ++col)
+            Solve(row,col);
+        
+    cout <<"#"<<test_case<<" "<<answer<<endl;
+	}
+	return 0;
+}
