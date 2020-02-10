@@ -1,0 +1,102 @@
+#include<iostream>
+#include <vector>
+using namespace std;
+
+struct Rotation{
+    int magnet_index;
+    int direction;
+};
+
+int magnet[4][8];
+Rotation rotation_info[20];
+vector<pair<int,int>> roatate_indexes;
+
+void Rotate(int magnet_index,  int direction)
+{
+    if(direction == 1)
+    {
+        int temp = magnet[magnet_index][7];
+        for(int edge_index = 7; edge_index-1 >=0; --edge_index)
+            magnet[magnet_index][edge_index] = magnet[magnet_index][edge_index-1];    
+        magnet[magnet_index][0] = temp;
+    }
+    else
+    {
+        int temp = magnet[magnet_index][0];
+        for(int edge_index = 0; edge_index < 7; ++edge_index)
+        	magnet[magnet_index][edge_index] = magnet[magnet_index][edge_index+1];
+        magnet[magnet_index][7] = temp;
+    }
+}
+
+int Solve(int K)
+{
+     for(int rotation_index = 0; rotation_index < K; ++rotation_index)
+     {
+         int magnet_index =  rotation_info[rotation_index].magnet_index;
+         int direction =rotation_info[rotation_index].direction;
+         
+         roatate_indexes.push_back(make_pair(magnet_index, direction));
+         int next_direction = -direction;
+         for(int index = magnet_index; index+1 < 4; ++index)
+         {
+             if(magnet[index][2] != magnet[index+1][6])
+             {
+                 roatate_indexes.push_back(make_pair(index+1, next_direction));
+                 next_direction = -next_direction;
+             }
+             else
+                 break;
+         }
+         
+         next_direction = -direction;
+         for(int index = magnet_index; index-1 >= 0; --index)
+         {
+             if(magnet[index-1][2] != magnet[index][6])
+             {
+                 roatate_indexes.push_back(make_pair(index-1, next_direction));
+                 next_direction = -next_direction;
+             }
+             else
+                 break;
+         }
+         while(!roatate_indexes.empty())
+         {
+             Rotate(roatate_indexes.back().first, roatate_indexes.back().second);
+             roatate_indexes.pop_back();
+         }
+     }
+    int sum = 0;
+    
+    for(int magnet_index = 0; magnet_index < 4; ++magnet_index)
+    {
+        if(magnet[magnet_index][0] == 1)
+            sum += (1 << magnet_index);
+    }
+    return sum;
+}
+
+int main(int argc, char** argv)
+{
+	int T;
+	cin>>T;
+	for(int test_case = 1; test_case <= T; ++test_case)
+	{
+        int K;
+        cin >> K;
+        
+        for(int magnet_index = 0; magnet_index < 4; ++magnet_index)
+            for(int edge_index = 0; edge_index < 8; ++edge_index)
+                cin >> magnet[magnet_index][edge_index];
+        
+        for(int rotation_index = 0; rotation_index < K; ++rotation_index)
+        {
+            int magnet_index, direction;
+            cin >> magnet_index >> direction;
+            rotation_info[rotation_index] = {magnet_index-1, direction};
+        }
+        
+        cout <<"#"<<test_case <<" "<<Solve(K)<<endl;
+	}
+	return 0;
+}
