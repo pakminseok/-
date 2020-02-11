@@ -1,0 +1,87 @@
+#include <iostream>
+
+using namespace std;
+
+const int MAX_SIZE = 20;
+
+int map_info[MAX_SIZE][MAX_SIZE];
+int N, X;
+
+int Dr[2] = {0, 1};
+int Dc[2] = {1, 0};
+
+int NumOfCell(int row, int col, int direction)
+{
+    int num_of_cell = 1;
+    while(row + Dr[direction] < N && col + Dc[direction] < N)
+    {
+        if(map_info[row][col] != map_info[row + Dr[direction]][col + Dc[direction]])
+            break;
+      	num_of_cell++;
+        row = row + Dr[direction];
+        col = col + Dc[direction];
+    }
+    return num_of_cell;
+}
+
+bool CanBuild(int row, int col, int direction)
+{
+    int num_of_cell = 1;
+    while(row+Dr[direction] < N && col+Dc[direction] < N)
+    {
+        int height_diff = map_info[row][col] - map_info[row+Dr[direction]][col+Dc[direction]];
+        if(height_diff == 0)
+        {
+            num_of_cell++;
+            row = row + Dr[direction];
+        	col = col + Dc[direction];
+        }
+        else if(height_diff == 1)
+        {
+            if(NumOfCell(row+Dr[direction], col+Dc[direction], direction) < X) return false;
+            row = row + Dr[direction]*X;
+        	col = col + Dc[direction]*X;
+            num_of_cell = 0;
+        }
+        else if(height_diff == -1)
+        {
+            if(num_of_cell < X) return false;
+            row = row + Dr[direction];
+        	col = col + Dc[direction];
+            num_of_cell = 1;
+        }
+        else
+            return false;
+    }
+    return true;
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	
+	cin>>T;
+	
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        cin >> N >> X;
+        for(int row = 0; row < N; ++row)
+            for(int col = 0; col < N; ++col)
+                cin >> map_info[row][col];
+        
+        int answer = 0;
+        for(int row = 0; row < N; ++row)
+        {
+            if(CanBuild(row, 0, 0))
+                answer++;
+        }
+        for(int col = 0; col < N; ++col)
+        {
+            if(CanBuild(0, col, 1))
+                answer++;
+        }
+        cout<<"#"<<test_case<<" "<<answer<<endl;
+	}
+	return 0;
+}
