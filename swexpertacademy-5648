@@ -1,0 +1,81 @@
+#include<iostream>
+
+using namespace std;
+
+const int MAX_SIZE = 4001;
+
+struct Atom{
+    int x;
+    int y;
+    int direction;
+    int energy;
+};
+
+int energy_map[MAX_SIZE][MAX_SIZE];
+int Dx[4] = {0, 0, -1, 1};
+int Dy[4] = {1, -1, 0, 0};
+
+int main(int argc, char** argv)
+{
+	int T;
+	cin>>T;
+	
+	for(int test_case = 1; test_case <= T; ++test_case)
+	{
+        int answer = 0;
+        
+		int N;
+        cin >> N;
+		Atom atoms[N];
+        for(int index = 0; index < N; ++index)
+        {
+            int x, y, direction, energy;
+            cin >> x >> y >> direction >> energy;
+            x = (x + 1000)*2;
+            y = (y+1000)*2;
+            atoms[index] = {x,y,direction,energy};
+            energy_map[x][y] = energy;
+        }
+        
+        for(int elapsed_time = 0; elapsed_time <= 4000; ++elapsed_time)
+        {
+            int new_index = 0;
+            for(int index = 0; index < N; ++index)
+            {                
+                energy_map[atoms[index].x][atoms[index].y] = 0;
+                int next_x = atoms[index].x + Dx[atoms[index].direction];
+                int next_y = atoms[index].y + Dy[atoms[index].direction];
+                
+                if(next_x < 0 || next_x > MAX_SIZE-1 || next_y < 0 || next_y > MAX_SIZE-1) continue;
+                
+                energy_map[next_x][next_y] += atoms[index].energy;
+               	if(energy_map[next_x][next_y] == atoms[index].energy)
+                {
+                    atoms[new_index] = {next_x, next_y, atoms[index].direction, atoms[index].energy};
+                    new_index++;
+                }
+            }
+            N = new_index;
+            new_index = 0;
+            int total_energy = 0;
+
+            for(int index = 0; index < N; ++index)
+            {
+                if(energy_map[atoms[index].x][atoms[index].y] > atoms[index].energy)
+                {
+                    total_energy += energy_map[atoms[index].x][atoms[index].y];
+                    energy_map[atoms[index].x][atoms[index].y] = 0;
+                }
+                else
+                {
+                    atoms[new_index] =atoms[index];
+                    new_index++;
+                }
+            }
+            N = new_index;
+            answer +=total_energy;
+        }   
+        cout<<"#"<<test_case<<" "<<answer<<endl;
+	}
+	return 0;
+}
