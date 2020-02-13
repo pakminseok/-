@@ -79,3 +79,135 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
+
+------------------------------------------------
+//시간 개선(그룹화)
+#include<iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Atom{
+    int x;
+    int y;
+    int direction;
+    int energy;
+};
+
+Atom atoms[1000];
+int crash_time[1000];
+vector<pair<int, int>> crash_list[4001];
+int main(int argc, char** argv)
+{
+	int T;	
+	cin>>T;
+
+	for(int test_case = 1; test_case <= T; ++test_case)
+	{
+		int N;
+        cin >> N;
+		
+		for(int index = 0; index < N; ++index)
+        {
+            cin >> atoms[index].x >> atoms[index].y >> atoms[index].direction >> atoms[index].energy;
+            crash_time[index] = -1;
+        }
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = i+1; j < N; ++j)
+            {
+                int index = i;
+                int comp_index = j;
+                if(atoms[index].direction > atoms[comp_index].direction)
+                    swap(index, comp_index);
+                if(atoms[index].direction == 0)
+                {
+                    if(atoms[comp_index].direction == 1)
+                    {
+                        if(atoms[index].x == atoms[comp_index].x && atoms[index].y < atoms[comp_index].y)
+                        {
+                            int time = atoms[comp_index].y - atoms[index].y;
+                            crash_list[time].push_back(make_pair(index, comp_index));
+                        }
+                    }
+                    else if(atoms[comp_index].direction == 2)
+                    {
+                        if(((atoms[comp_index].x - atoms[index].x) == (atoms[comp_index].y-atoms[index].y)) && atoms[comp_index].x > atoms[index].x  && atoms[index].y < atoms[comp_index].y)
+                        {
+                            int time = (atoms[comp_index].y - atoms[index].y)*2;
+                            crash_list[time].push_back(make_pair(index, comp_index));
+                        }
+                    }
+                    else if(atoms[comp_index].direction == 3)
+                    {
+                        if(((atoms[index].x - atoms[comp_index].x) == (atoms[comp_index].y-atoms[index].y)) && atoms[index].x > atoms[comp_index].x && atoms[index].y < atoms[comp_index].y)
+                        {
+                            int time = (atoms[comp_index].y - atoms[index].y)*2;
+                            crash_list[time].push_back(make_pair(index, comp_index));
+                        }
+                    }   
+                }
+                else if(atoms[index].direction == 1)
+                {
+                    if(atoms[comp_index].direction == 2)
+                    {
+                        if(((atoms[comp_index].x - atoms[index].x) == (atoms[index].y - atoms[comp_index].y)) && atoms[index].x < atoms[comp_index].x && atoms[index].y > atoms[comp_index].y)
+                        {
+                            int time = (atoms[index].y - atoms[comp_index].y)*2;
+                            crash_list[time].push_back(make_pair(index, comp_index));
+                        }
+                    }
+                    else if(atoms[comp_index].direction == 3)
+                    {
+                        if(((atoms[index].x - atoms[comp_index].x) == (atoms[index].y - atoms[comp_index].y)) && (atoms[index].x > atoms[comp_index].x) && atoms[index].y > atoms[comp_index].y)
+                        {
+                            int time = (atoms[index].y - atoms[comp_index].y)*2;
+                            crash_list[time].push_back(make_pair(index, comp_index));
+                        }
+                    }
+                }
+                else if(atoms[index].direction == 2)
+                {
+                    if(atoms[comp_index].direction == 3)
+                    {
+                        if((atoms[index].y== atoms[comp_index].y) && (atoms[index].x> atoms[comp_index].x) )
+                        {
+                            int time = (atoms[index].x - atoms[comp_index].x);
+                            crash_list[time].push_back(make_pair(index, comp_index));
+                        }
+                    }
+                }
+            }
+        }
+        int total_energy = 0;
+        for(int time = 1; time < 4004; ++time)
+        {
+            while(!crash_list[time].empty())
+            {
+                int atom_A = crash_list[time].back().first;
+                int atom_B = crash_list[time].back().second;
+				crash_list[time].pop_back();
+                
+                 if(crash_time[atom_A] == time && crash_time[atom_B] == -1)
+                {
+                    total_energy +=atoms[atom_B].energy;
+                   crash_time[atom_B] = time;
+                }
+                else if(crash_time[atom_A] == -1 && crash_time[atom_B] == time)
+                {
+                    total_energy +=atoms[atom_A].energy;
+                    crash_time[atom_A] = time;
+                }
+                else  if(crash_time[atom_A] == -1 && crash_time[atom_B] == -1)
+                {
+                    total_energy +=atoms[atom_A].energy;
+                    total_energy +=atoms[atom_B].energy;
+                    crash_time[atom_A] = time;
+                    crash_time[atom_B] = time;
+                }
+            }
+        }
+        cout <<"#"<<test_case<<" "<<total_energy << endl;
+	}
+	return 0;
+}
