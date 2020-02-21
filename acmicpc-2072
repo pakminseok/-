@@ -1,0 +1,179 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Bridge{
+    int start;
+    int end;
+    int length;
+};
+
+int N, M;
+int map[10][10];
+vector<pair<int, int>> island[6];
+vector<Bridge> bridge;
+int parent_island[6];
+
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+
+void Initialize()
+{
+     cin >> N >> M;
+   
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col = 0; col < M; ++col)
+        {
+            cin >> map[row][col];
+            if(map[row][col] != 0)
+                map[row][col] = -1;
+        }
+    }
+}
+
+bool Comp(Bridge A, Bridge B)
+{
+    return A.length > B.length;
+}
+
+bool CheckRange(int row, int col)
+{
+    if(row < 0 || row > N-1 || col < 0 || col > M-1)
+        return false;
+    return true;
+}
+
+Bridge MakeBridge(int row, int col, int direction)
+{
+    int start_island = map[row][col];
+    int length = 0;
+    
+    int next_row = row+ Dr[direction];
+    int next_col = col + Dc[direction];
+    
+    if(!CheckRange(next_row, next_col)) return {start_island, -1, 0};
+    
+    while(map[next_row][next_col] == 0)
+    {
+        length++;
+        next_row =next_row + Dr[direction];
+   		next_col = next_col + Dc[direction];
+        if(!CheckRange(next_row, next_col)) return {start_island, -1, 0};
+    }
+    return {start_island, map[next_row][next_col], length};
+}
+
+void FindBridge(int num_of_island)
+{
+     for(int island_index = 0; island_index < num_of_island; ++island_index)
+     {
+         while(!island[island_index].empty())
+         {
+             int row = island[island_index].back().first;
+             int col = island[island_index].back().second;
+             island[island_index].pop_back();
+             
+             for(int direction = 0; direction < 4; ++direction)
+             {
+                 Bridge curr_bridge = MakeBridge(row, col, direction);
+                 if(curr_bridge.length >= 2)
+                     bridge.push_back(curr_bridge);
+             }
+         }
+     }
+    sort(bridge.begin(), bridge.end(), Comp);
+}
+
+void MakeIsland(int row, int col, int index_island)
+{
+    map[row][col] = index_island;
+    island[index_island-1].push_back(make_pair(row, col));
+    for(int direction = 0; direction < 4; ++direction)
+    {
+        int next_row = row + Dr[direction];
+        int next_col = col + Dc[direction];
+        
+        if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > M-1) continue;
+        if(map[next_row][next_col] != -1) continue;
+        
+        MakeIsland(next_row, next_col, index_island);
+    }
+}
+
+void FindIsland(int& num_of_island)
+{
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col = 0; col < M; ++col)
+        {
+            if(map[row][col] == -1)
+            {
+                MakeIsland(row, col, num_of_island+1);
+                parent_island[num_of_island] =num_of_island;
+                num_of_island++;
+            }
+        }
+    }
+}
+
+int FindParent(int island)
+{
+    return (parent_island[island] == island) ? island : FindParent(parent_island[island]);
+}
+
+void Union(int island_A, int island_B)
+{
+    int parent_A = FindParent(island_A);
+    int parent_B = FindParent(island_B);
+    
+    if(parent_A != parent_B)
+    {
+        if(parent_A < parent_B) parent_island[parent_B] = parent_A;
+        else parent_island[parent_A] = parent_B;
+    }
+}
+
+bool SameParent(int island_A, int island_B)
+{
+    int parent_A = FindParent(island_A);
+    int parent_B = FindParent(island_B);
+    
+    return (parent_A == parent_B) ? true : false;
+}
+
+int SumOfBridge(int num_of_island)
+{
+    int sum = 0;
+    
+    while(!bridge.empty())
+    {
+        int start_island = bridge.back().start;
+        int end_island = bridge.back().end;
+        int length = bridge.back().length;
+        bridge.pop_back();
+        
+        if(SameParent(start_island-1, end_island-1)) continue;
+        
+        Union(start_island-1, end_island-1);
+        sum += length;
+    }
+	  for(int index = 1; index < num_of_island; ++index)
+        if(!SameParent(0, index))
+            return -1;
+    return sum;
+}
+
+int main()
+{
+    int num_of_island = 0;
+
+    Initialize();
+    FindIsland(num_of_island);
+    FindBridge(num_of_island);
+
+    cout << SumOfBridge(num_of_island) << endl;
+    return 0;
+}
