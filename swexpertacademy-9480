@@ -1,0 +1,58 @@
+#include<iostream>
+#include <vector>
+
+using namespace std;
+string words[15];
+int N;
+vector<string> choose;
+int answer;
+
+bool Check()
+{
+    bool alphabet[26] = {false};
+    for(auto word : choose)
+    {
+        for(int index = 0; index < word.size(); ++index)
+        {
+            alphabet[word[index]-'a'] = true;
+        }
+    }
+    for(int index = 0; index < 26; ++index)
+        if(alphabet[index] == false)
+            return false;
+    return true;
+}
+
+void DFS(int index)
+{
+    if(index == N)
+    {
+        if(Check())
+			answer++;            
+        return;
+    }
+
+    choose.push_back(words[index]);
+    DFS(index + 1);
+    choose.pop_back();
+   	DFS(index + 1);
+}
+
+int main(int argc, char** argv)
+{
+	int test_case;
+	int T;
+	
+	cin>>T;
+	
+	for(test_case = 1; test_case <= T; ++test_case)
+	{
+        answer = 0;
+        cin >> N;
+        for(int index = 0; index < N; ++index)
+            cin >> words[index];
+		    DFS(0);
+        cout <<"#"<<test_case<<" " << answer<<endl;
+	}
+	return 0;
+}
