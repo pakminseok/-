@@ -67,49 +67,49 @@ int main(int argc, char** argv)
 
 	for(test_case = 1; test_case <= T; ++test_case)
 	{
-        fill_n(number, 10, true);
-        
-		int N;
-        cin >> N;
-        
-        for(int num_of_ask = 1; num_of_ask <= N; ++num_of_ask)
-        {
-            int a,b,c,d;
-            cin >> a >> b >> c >> d;
+		fill_n(number, 10, true);
 
-            string answer;
-            cin >> answer;
-            
-            if(answer == "YES")
-            {
-              	 for(int num = 0; num < 10; ++num)
-                {
-                    if(num == a || num == b || num == c || num == d)
-                    	number[num] &= true;
-                    else
-                        number[num] = false;
-                }
-            }
-            else
-            {
-                for(int num = 0; num < 10; ++num)
-                {
-                    if(num == a || num == b || num == c || num == d)
-                    	number[num] = false;
-                    else
-                        number[num] &= true;
-                }
-            }
-        }
+		int N;
+        	cin >> N;
         
-        for(int num = 0; num < 10; ++num)
-        {
-            if(number[num])
-            {
-                cout << "#" << test_case<< " "<<num<<endl;
-                break;
-            }   
-        }
+		for(int num_of_ask = 1; num_of_ask <= N; ++num_of_ask)
+		{
+		    int a,b,c,d;
+		    cin >> a >> b >> c >> d;
+
+		    string answer;
+		    cin >> answer;
+
+		    if(answer == "YES")
+		    {
+			 for(int num = 0; num < 10; ++num)
+			{
+			    if(num == a || num == b || num == c || num == d)
+				number[num] &= true;
+			    else
+				number[num] = false;
+			}
+		    }
+		    else
+		    {
+			for(int num = 0; num < 10; ++num)
+			{
+			    if(num == a || num == b || num == c || num == d)
+				number[num] = false;
+			    else
+				number[num] &= true;
+			}
+		    }
+		}
+
+		for(int num = 0; num < 10; ++num)
+		{
+		    if(number[num])
+		    {
+			cout << "#" << test_case<< " "<<num<<endl;
+			break;
+		    }   
+		}
 	}
 	return 0;
 }
