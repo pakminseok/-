@@ -1,0 +1,37 @@
+#include <iostream>
+
+using namespace std;
+
+long long Transaction(int* stock, const int& num_of_stock)
+{
+    int max_price = 0;
+    long long profit = 0;
+    
+    for(int day = num_of_stock - 1; day >=0; --day)
+    {
+        if(max_price < stock[day])
+            max_price = stock[day];
+        else
+            profit += 1LL*(max_price - stock[day]);
+    }
+    return profit;
+}
+
+int main()
+{
+    int T;
+    cin >> T;
+    for(int test_case = 1; test_case <= T; ++test_case)
+    {
+        int num_of_stock; 
+        cin >> num_of_stock;
+        
+        int stock[num_of_stock];
+        
+        for(int i = 0; i < num_of_stock; ++i)
+            cin >> stock[i];
+        
+        cout << Transaction(stock, num_of_stock) << endl;
+    }
+    return 0;
+}
