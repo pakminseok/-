@@ -1,0 +1,20 @@
+#include <vector>
+
+using namespace std;
+
+vector<int> solution(int n) {
+    vector<int> answer;
+    answer.push_back(0);
+    for(int i = 2; i <= n; ++i)
+    {
+        vector<int> pattern(answer);
+        answer.push_back(0);
+        while(!pattern.empty())
+        {
+            (pattern.back() == 0) ? answer.push_back(1) : answer.push_back(0); 
+            pattern.pop_back();
+        }
+    }
+    
+    return answer;
+}
