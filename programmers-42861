@@ -1,0 +1,43 @@
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+bool Comp(vector<int> cost_A, vector<int> cost_B)
+{
+    if(cost_A[2] == cost_B[2])
+    {
+        if(cost_A[0] == cost_B[0])
+            return cost_A[1] < cost_B[1];
+        return cost_A[0] < cost_B[0];
+    }
+    return cost_A[2] < cost_B[2];
+}
+
+int solution(int n, vector<vector<int>> costs) {
+    int answer = 0;
+    vector<bool> visit(n);
+
+    sort(costs.begin(), costs.end(), Comp);
+    
+    visit[costs[0][0]] = true;
+    visit[costs[0][1]] = true;
+    answer += costs[0][2];
+    int cnt = 2;
+    while(cnt < n)
+    {
+        for(int i = 1; i < costs.size(); ++i)
+        {
+            if((!visit[costs[i][0]]&&visit[costs[i][1]]) || (visit[costs[i][0]]&&!visit[costs[i][1]]))
+            {
+                visit[costs[i][0]] = true;
+                visit[costs[i][1]] = true;
+                cnt++;
+                answer += costs[i][2];
+                break;
+            }
+        }
+    }
+
+    return answer;
+}
