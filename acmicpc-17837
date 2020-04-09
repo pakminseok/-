@@ -124,3 +124,136 @@ int main()
     Solve();
     return 0;
 }
+
+
+//다른 방법(20/04/09)
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct Chess{
+    int row;
+    int col;
+    int direction;
+};
+
+int Dr[4] = {0, 0, -1, 1};
+int Dc[4] = {1, -1, 0, 0};
+int reverse_direction[4] = {1, 0, 3, 2};
+    
+vector<Chess> chess;
+vector<int> board[12][12];
+int color[12][12];
+
+int N, K;
+
+void Move(int i, int before_color)
+{
+    int next_row = chess[i].row + Dr[chess[i].direction]; 
+    int next_col = chess[i].col + Dc[chess[i].direction];
+
+    if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > N-1)
+    {
+        if(before_color != 2)
+        {
+            chess[i].direction = reverse_direction[chess[i].direction];
+            return Move(i, 2);
+        }
+        else
+            return;
+    }
+	
+    if(color[next_row][next_col] == 0)
+    {
+        vector<int> tmp;
+        while(true)
+        {
+            tmp.push_back(board[chess[i].row][chess[i].col].back());
+            if(board[chess[i].row][chess[i].col].back() == i)
+            {
+                board[chess[i].row][chess[i].col].pop_back();
+                break;
+            }
+            else
+                board[chess[i].row][chess[i].col].pop_back();
+        }
+
+        while(!tmp.empty())
+        {
+            board[next_row][next_col].push_back(tmp.back());
+            chess[tmp.back()].row = next_row;
+            chess[tmp.back()].col = next_col;
+
+            tmp.pop_back();
+        }
+    }
+    else if(color[next_row][next_col] == 1)
+    {
+        int row = chess[i].row;
+        int col = chess[i].col;
+        while(true)
+        {
+            board[next_row][next_col].push_back(board[row][col].back());
+            chess[board[row][col].back()].row = next_row;
+            chess[board[row][col].back()].col = next_col;
+
+            if(board[row][col].back() == i)
+            {
+                board[row][col].pop_back();
+                break;
+            }
+            else
+                board[row][col].pop_back();
+        }
+    }
+    else if(color[next_row][next_col] == 2)
+    {
+        if(before_color != 2)
+        {
+            chess[i].direction = reverse_direction[chess[i].direction];
+            return Move(i, 2);
+        }
+        else 
+            return;
+    }
+    return;
+}
+
+int main()
+{
+    cin >> N >> K;
+	
+    for(int row = 0; row < N; ++row)
+    	for(int col = 0; col < N; ++col)
+            cin >> color[row][col];
+
+    for(int i = 0; i < K; ++i)
+    {
+        int row, col, direction;
+        cin >> row >> col >> direction;
+        chess.push_back({row-1, col-1, direction-1});
+        board[row-1][col-1].push_back(i);
+    }
+    
+    int turn = 1;
+    while(turn <= 1000)
+    {
+        for(int i = 0; i < K; ++i)
+        {
+            Move(i, 0);
+            
+            if(board[chess[i].row][chess[i].col].size() == 4)
+            {
+                cout << turn;
+                return 0;
+            }
+        }
+        turn++;
+    }
+    if(turn > 1000)
+        turn = -1;
+    
+    cout << turn;
+    return 0;
+}
