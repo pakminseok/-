@@ -97,3 +97,118 @@ int main()
 
 	return 0;
 }
+
+
+
+///////////////////
+//실행시간 단축(72ms -> 16ms)
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+int population[20][20];
+int distriction[20][20];
+int sum[6];
+
+void MakeSum(const int& N)
+{
+    memset(sum, 0, sizeof(sum));
+    
+    for(int row =0; row < N; ++row)
+        for(int col=0; col < N; ++col)
+ 			sum[distriction[row][col]] += population[row][col];
+}
+
+void MakeDistriction(const int& x, const int& y, const int& d1, const int& d2, const int& N)
+{
+    memset(distriction, 0, sizeof(distriction));
+    
+    for(int d = 0; d <= d1; ++d)
+        distriction[x+d][y-d] = 5;
+    for(int d = 0; d <= d2; ++d)
+        distriction[x+d][y+d] = 5;
+    for(int d = 0; d <= d1; ++d)
+        distriction[x+d2+d][y+d2-d] = 5;
+    for(int d = 0; d <= d2; ++d)
+        distriction[x+d1+d][y-d1+d] = 5;
+    
+    for(int row = 0; row < x + d1; ++row)
+    {
+        for(int col = 0; col <= y; ++col)
+        {
+            if(distriction[row][col] == 5) break;
+            distriction[row][col] = 1;
+        }
+    }
+    
+    for(int row = 0; row <= x + d2; ++row)
+    {
+        for(int col = N-1; col > y; --col)
+        {
+            if(distriction[row][col] == 5) break;
+            distriction[row][col] = 2;
+        }
+    }
+    
+    for(int row = x+d1; row < N; ++row)
+    {
+        for(int col = 0; col < y-d1+d2; ++col)
+        {
+            if(distriction[row][col] == 5) break;
+            distriction[row][col] = 3;
+        }
+    }
+    
+    for(int row = x+d2+1; row <N; ++row)
+    {
+        for(int col = N-1; col >= y-d1+d2; --col)
+        {
+            if(distriction[row][col] == 5) break;
+            distriction[row][col] = 4;
+        }
+    }
+}
+
+int SumOfDiff(const int& x, const int& y, const int& d1, const int& d2, const int& N)
+{ 
+    MakeDistriction(x, y, d1, d2, N);
+    MakeSum(N);
+    int max = sum[0]+sum[5];
+    int min = sum[0]+sum[5];
+    
+    for(int i = 1; i <5; ++i)
+    {
+        max = (max < sum[i]) ? sum[i] : max;
+        min = (min > sum[i]) ? sum[i] : min;
+    }
+    return max - min;
+}
+
+int main()
+{
+    int N;
+    cin >> N;
+    
+    int answer = 987654321;
+    
+    for(int row =0; row < N; ++row)
+        for(int col=0; col < N; ++col)
+            cin >> population[row][col];
+    
+    for(int x = 0; x < N-2; ++x)
+    {
+        for(int y = 1; y < N-1; ++y)
+        {
+            for(int d1 = 1; x+d1 < N-1 && y-d1 >= 0; ++d1)
+            {
+                for(int d2 = 1; x+d1+d2 < N && y + d2 <N; ++d2)
+                {
+                    int sum_of_diff = SumOfDiff(x, y, d1, d2, N);
+                    answer = (answer > sum_of_diff) ? sum_of_diff : answer;
+                }
+            }
+        }
+    }
+    cout << answer << endl;
+}
