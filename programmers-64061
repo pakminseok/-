@@ -1,0 +1,41 @@
+#include <vector>
+
+using namespace std;
+
+void MoveToBasket(vector<vector<int>>& board, int position, vector<int>& basket, int& answer)
+{
+    for(int row = 0; row < board.size(); ++row)
+    {
+        if(board[row][position] != 0)
+        {
+            if(basket.empty())
+                basket.push_back(board[row][position]);
+            else
+            {
+                if(basket.back() == board[row][position])
+                {
+                    basket.pop_back();
+                    answer+=2;
+                }
+                else
+                    basket.push_back(board[row][position]);
+            }
+            
+            board[row][position] = 0;
+            break;
+        }
+    }
+}
+
+int solution(vector<vector<int>> board, vector<int> moves) {
+    int answer = 0;
+    vector<int> basket;
+    
+    for(int i = 0; i < moves.size(); ++i)
+    {
+        int position = moves[i]-1;
+        MoveToBasket(board, position, basket, answer);
+    }
+    
+    return answer;
+}
