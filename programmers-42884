@@ -1,0 +1,26 @@
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+bool Comp(vector<int> car_A, vector<int> car_B)
+{
+    if(car_A[1] == car_B[1])
+        return car_A[0] < car_B[0];
+    return car_A[1] < car_B[1];
+}
+
+int solution(vector<vector<int>> routes) {
+    int answer = 0;
+    sort(routes.begin(), routes.end(), Comp);
+    int camera_pos = -30001;
+    for(auto route : routes)
+    {
+        if(camera_pos < route[0])
+        {
+            camera_pos = route[1];
+            answer++;
+        }
+    }
+    return answer;
+}
