@@ -1,0 +1,36 @@
+#include <vector>
+
+using namespace std;
+
+int solution(vector<int> cookie) {
+    int answer = 0;
+    vector<int> sum(cookie.size()+1, 0);
+   
+    for(int i = 1; i <= cookie.size(); ++i)
+        sum[i] = sum[i-1] + cookie[i-1];
+    
+    for(int m = 1; m < cookie.size(); ++m)
+    {
+        int l = 1;
+        int r = cookie.size();
+        while(l < r)
+        {
+            int son_A = sum[m] - sum[l-1];
+            int son_B = sum[r] - sum[m];
+            
+            if(son_A == son_B)
+            {
+                answer = (answer < son_A) ? son_A : answer;
+                break;
+            }
+            
+            if(son_A < son_B)
+                r--;
+            else
+                l++; 
+        }
+    }
+    
+    
+    return answer;
+}
