@@ -1,0 +1,115 @@
+#include <queue>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int Dr[4] = {-1, 1, 0, 0};
+int Dc[4] = {0, 0, -1, 1};
+
+struct Ladder{
+    int from_pos;
+    int to_pos;
+    int cost;
+};
+
+bool Comp(Ladder A, Ladder B)
+{
+    if(A.cost == B.cost)
+    {
+        if(A.from_pos == B.from_pos)
+            return A.to_pos < B.to_pos;
+        return A.from_pos < B.from_pos;
+    }
+    return A.cost < B.cost;
+}
+
+void MakeGroup(int row, int col, int group_color, vector<vector<int>>& land, vector<vector<int>>& color, const int& height)
+{
+    int N = land.size();
+    queue<pair<int, int>> q;
+    q.push({row, col});
+    color[row][col] = group_color;
+    while(!q.empty())
+    {
+        int curr_row = q.front().first;
+        int curr_col = q.front().second;
+        q.pop();
+        
+        for(int direction = 0; direction < 4; ++direction)
+        {
+            int next_row = curr_row + Dr[direction];
+            int next_col = curr_col + Dc[direction];
+            
+            if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > N-1) continue;
+            if(color[next_row][next_col] != 0 || abs(land[curr_row][curr_col] - land[next_row][next_col]) > height) continue;
+            color[next_row][next_col] = group_color;
+            q.push({next_row, next_col});
+        }
+    }
+}
+
+vector<Ladder> MakeLadder(vector<vector<int>>& land, vector<vector<int>>& color, const int& N)
+{
+    vector<Ladder> ladders;
+    vector<vector<bool>> visit(N, vector<bool>(N, false));
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col = 0; col < N; ++col)
+        {
+            visit[row][col] = true;
+            for(int direction = 0; direction < 4; ++direction)
+            {
+                int next_row = row + Dr[direction];
+                int next_col = col + Dc[direction];
+
+                if(next_row < 0 || next_row > N-1 || next_col < 0 || next_col > N-1) continue;
+                if(color[row][col] == color[next_row][next_col] || visit[next_row][next_col]) continue;
+                ladders.push_back({color[row][col], color[next_row][next_col], abs(land[row][col] - land[next_row][next_col])});
+            }
+        }
+    }
+    return ladders;
+}
+
+int solution(vector<vector<int>> land, int height) {
+    int answer = 0;
+    int N = land.size();
+    
+    vector<vector<int>> color(N, vector<int>(N, 0));
+    int num_of_color = 0;
+    for(int row = 0; row < N; ++row)
+    {
+        for(int col = 0; col < N; ++col)
+        {
+            if(color[row][col] == 0)
+               MakeGroup(row, col, ++num_of_color, land, color, height);
+        }
+    }
+    
+    if(num_of_color == 1) return 0;
+    
+    vector<Ladder> ladders = MakeLadder(land, color, N);
+    sort(ladders.begin(), ladders.end(), Comp);
+    
+    vector<bool> visit(num_of_color+1, false);
+    visit[ladders[0].from_pos] = true;
+    visit[ladders[0].to_pos] = true;
+    answer += ladders[0].cost;
+    int cnt = 2;
+    
+    while(cnt < num_of_color)
+    {
+        for(int i = 1; i < ladders.size(); ++i)
+        {
+            if((visit[ladders[i].from_pos]&&!visit[ladders[i].to_pos]) || (!visit[ladders[i].from_pos]&&visit[ladders[i].to_pos]))
+            {
+                visit[ladders[i].from_pos] = true;
+                visit[ladders[i].to_pos] = true;
+                cnt++;
+                answer += ladders[i].cost;
+                break;
+            }
+        }
+    }
+    return answer;
+}
