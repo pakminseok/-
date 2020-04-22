@@ -1,0 +1,49 @@
+#include <vector>
+#include <string>
+
+using namespace std;
+
+const int INF = 987654321;
+
+bool isConvertable(string begin, string target)
+{
+    int num_of_diff = 0;
+    for(int i = 0; i < begin.length(); ++i)
+    {
+        if(begin[i] != target[i])
+            num_of_diff++;
+    }
+    
+    if(num_of_diff != 1) 
+        return false;
+    else
+        return true;
+}
+
+void dfs(string begin, string target, int cnt, vector<string>& words, vector<bool>& visit, int& answer)
+{
+    if(begin == target)
+    {
+        answer = (answer > cnt) ? cnt : answer;
+        return;
+    }
+    for(int target_idx = 0; target_idx < words.size(); ++target_idx)
+    {
+        if(visit[target_idx]) continue;
+        if(isConvertable(begin, words[target_idx]))
+        {
+            visit[target_idx] = true;
+            dfs(words[target_idx], target, cnt+1, words, visit, answer);
+            visit[target_idx] = false;
+        }
+    }
+}
+
+int solution(string begin, string target, vector<string> words) {
+    int answer = INF;
+    vector<bool> visit(words.size(), false);
+    dfs(begin, target, 0, words, visit, answer);
+    if(answer == INF)
+        answer = 0;
+    return answer;
+}
