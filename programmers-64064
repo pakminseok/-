@@ -1,0 +1,53 @@
+#include <string>
+#include <vector>
+
+using namespace std;
+
+bool visit[1<<8];
+
+void dfs(int banned_idx, int bits, int& answer, vector<vector<int>>& banned_list)
+{
+    if(banned_idx == banned_list.size())
+    {
+        if(!visit[bits]) 
+        {
+            visit[bits] = true;
+            answer++;
+        }
+        return;
+    }
+    
+    for(int user_idx : banned_list[banned_idx])
+    {
+        if(bits & (1 << user_idx)) continue;
+        dfs(banned_idx + 1, bits | (1 << user_idx), answer, banned_list);
+    }
+}
+bool is_banned(string user_id, string banned_id)
+{
+    if(user_id.length() != banned_id.length())
+        return false;
+    for(int i = 0; i < user_id.length(); ++i)
+    {
+        if(banned_id[i] != '*' && user_id[i] != banned_id[i]) 
+            return false;
+    }
+    return true;
+}
+
+int solution(vector<string> user_id, vector<string> banned_id) {
+    int answer = 0;
+    vector<vector<int>> banned_list(banned_id.size());
+    
+    for(int banned_idx = 0; banned_idx < banned_id.size(); ++banned_idx)
+    {
+        for(int user_idx = 0; user_idx < user_id.size(); ++user_idx)
+        {
+            if(is_banned(user_id[user_idx], banned_id[banned_idx]))
+                banned_list[banned_idx].push_back(user_idx);
+        }
+    }
+    
+    dfs(0, 0, answer, banned_list);
+    return answer;
+}
