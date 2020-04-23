@@ -1,0 +1,39 @@
+#include <vector>
+
+using namespace std;
+
+int MOD = 20170805;
+
+// 전역 변수를 정의할 경우 함수 내에 초기화 코드를 꼭 작성해주세요.
+int solution(int m, int n, vector<vector<int>> city_map) {
+    int answer = 0;
+    vector<vector<int>> go_right(m, vector<int>(n, 0));
+    vector<vector<int>> go_down(m, vector<int>(n, 0));
+    go_right[0][0] = 1;
+    go_down[0][0] = 1;
+    for(int row = 0; row < m; ++row)
+    {
+        for(int col = 0; col < n; ++col)
+        {
+            if(row == 0 && col == 0) continue;
+            if(city_map[row][col] == 0)
+            {
+                if(row == 0)
+                    go_right[row][col] = go_right[row][col-1];
+                else if(col == 0)
+                    go_right[row][col] = go_down[row-1][col];
+                else
+                    go_right[row][col] = (go_right[row][col-1] + go_down[row-1][col])%MOD;
+                go_down[row][col] = go_right[row][col];
+            }
+            else if(city_map[row][col] == 2)
+            {
+                if(col != 0)
+                    go_right[row][col] = go_right[row][col-1];
+                if(row != 0)
+                    go_down[row][col] = go_down[row-1][col];
+            }
+        }
+    }
+    return go_right[m-1][n-1] % MOD;
+}
