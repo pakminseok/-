@@ -1,0 +1,21 @@
+#include <string>
+#include <vector>
+
+using namespace std;
+
+long long solution(int N) {
+    if(N == 1) return 0;
+    
+    long long answer = 0;
+    long long one_side = 1;
+    long long other_side = 2;
+    
+    while(N-- > 2)
+    {
+        long long temp = one_side;
+        one_side = other_side;
+        other_side += temp;
+    }
+    
+    return 2*(one_side + other_side);
+}
