@@ -1,0 +1,35 @@
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+const int MOD = 1000000007;
+
+int solution(int m, int n, vector<vector<int>> puddles) {
+    vector<vector<int>> route(m, vector<int>(n, 0));
+    for(vector<int> puddle : puddles)
+    {
+        route[puddle[0]-1][puddle[1]-1] = -1;
+    }
+    route[0][0] = 1;
+    
+    for(int row = 0; row < m; ++row)
+    {
+        for(int col = 0; col < n; ++col)
+        {
+            if(row == 0 && col == 0) continue;
+            if(route[row][col] == -1) 
+            {
+                route[row][col] = 0;
+                continue;
+            }
+            if(row - 1 < 0)
+                route[row][col] +=  route[row][col-1]  % MOD;
+            else if(col - 1 < 0)
+                route[row][col] += route[row-1][col] % MOD;
+            else
+                route[row][col] += (route[row-1][col] + route[row][col-1])% MOD;
+        }
+    }
+    return route[m-1][n-1] % MOD;
+}
